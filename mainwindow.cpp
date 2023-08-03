@@ -428,6 +428,3 @@ void MainWindow::workpiece_table(int index)
     // Optional: Größe der Spalten automatisch an den Inhalt anpassen
     //ui->workpiece_tableView->resizeColumnsToContents();
 }
-
-
-
