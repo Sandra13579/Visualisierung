@@ -42,6 +42,15 @@ MainWindow::MainWindow(QWidget *parent)
     {
         ui->production_order_name_comboBox->insertItem(i++, query.record().value(0).toString());
     }
+
+//Station
+    query.prepare("SELECT station_name FROM vpj.station WHERE station_id < 10 ORDER BY station_id ASC;;");
+    database->Exec(&query);
+    i = 0;
+    while (query.next())
+    {
+        ui->station_comboBox->insertItem(i++, query.record().value(0).toString());
+    }
 }
 
 MainWindow::~MainWindow()
@@ -208,7 +217,7 @@ void MainWindow::on_comboBox_5_currentIndexChanged(int index) //Auswahl Roboter 
         int i = 0;
         while (query.next())
         {
-            ui->comboBox_6->insertItem(i++, query.record().value(0).toString());  //Roboter_id in Auswahlfeld schreiben
+            ui->comboBox_6->insertItem(i++, query.record().value(0).toString());  //Stationsnamen in Auswahlfeld schreiben
         }
         ui->comboBox_6->insertItem(i++, "Ladestation 1");
         ui->comboBox_6->insertItem(i++, "Ladestation 2");
@@ -347,11 +356,40 @@ void MainWindow::on_pushButton_3_clicked() //in Wartung schicken, aus Wartung ra
 //Aufträge
 void MainWindow::on_production_order_name_comboBox_currentIndexChanged(int index)
 {
-    workpiece_table(index +1);
+
+    //Wekstückeübersicht
+    int total_processed = workpiece_table(index +1);
+
+    //Produkt
+    QString order_name = ui->production_order_name_comboBox->currentText();
+    QSqlQuery query;
+    query.prepare("SELECT production_process_name FROM vpj.production_process INNER JOIN vpj.production_order ON production_order.production_process_id = production_process.production_process_id WHERE production_order.order_name = :order_name;");
+    query.bindValue(":order_name", order_name);
+    database->Exec(&query);
+    query.next();
+    ui->product_lineEdit->setText(query.record().value(0).toString());
+
+    //Auftragsstatus
+    query.prepare("SELECT workpiece_state_name FROM vpj.workpiece_state INNER JOIN vpj.production_order ON production_order.workpiece_state_id = workpiece_state.workpiece_state_id WHERE production_order.order_name = :order_name;");
+    query.bindValue(":order_name", order_name);
+    database->Exec(&query);
+    query.next();
+    ui->production_order_state_lineEdit->setText(query.record().value(0).toString());
+
+    //Fertigungsstand
+    query.prepare("SELECT number_of_pieces FROM vpj.production_order WHERE production_order.order_name = :order_name;");
+    query.bindValue(":order_name", order_name);
+    database->Exec(&query);
+    query.next();
+    int number_of_pieces = query.record().value(0).toInt();
+
+    ui->manufacturing_progressBar->setValue(100/number_of_pieces * total_processed);
 }
 
-void MainWindow::workpiece_table(int index)
+
+int MainWindow::workpiece_table(int index) //Werkstückübersicht
 {
+    int total_processed = 0;
     QStandardItemModel *model = new QStandardItemModel(this);
     model->setHorizontalHeaderLabels({"Fertigungsschritt", "       Dauer     ", "       Stückzahl      "}); // Setze die Spaltenüberschriften
 
@@ -405,17 +443,19 @@ void MainWindow::workpiece_table(int index)
             query.bindValue(":order_id", index);
             database->Exec(&query);
             query.next();
+            total_processed = query.record().value(0).toInt();
             counts = tr("%1").arg(query.record().value(0).toInt());
             qDebug() << "in counts = " << query.record().value(0).toInt();
             QStandardItem *countsItem = new QStandardItem(counts);
             model->setItem(row, 2, countsItem);
         }
-        if (row == 6) //Stückzahl, fertig produziert
+        if (row == 6) //Stückzahl, ausgeliefert
         {
             query.prepare("SELECT COUNT(*) FROM vpj.workpiece WHERE production_order_id = :order_id AND workpiece_state_id = 4;");
             query.bindValue(":order_id", index);
             database->Exec(&query);
             query.next();
+            total_processed += query.record().value(0).toInt();
             counts = tr("%1").arg(query.record().value(0).toInt());
             qDebug() << "in counts = " << query.record().value(0).toInt();
             QStandardItem *countsItem = new QStandardItem(counts);
@@ -424,7 +464,38 @@ void MainWindow::workpiece_table(int index)
 
     }
     ui->workpiece_tableView->setModel(model); // erstellt die Tabelle
-
+    return total_processed;
     // Optional: Größe der Spalten automatisch an den Inhalt anpassen
     //ui->workpiece_tableView->resizeColumnsToContents();
 }
+
+//Station
+void MainWindow::on_station_comboBox_currentIndexChanged(int index)
+{
+    int station_id = ui->station_comboBox->currentIndex()+1;
+    int place_id = 2;
+    if (station_id == 9) //Ladestationen
+    {
+        place_id = 1;
+    }
+    QSqlQuery query;
+    //Platz 2
+    query.prepare("SELECT state_name FROM vpj.state INNER JOIN vpj.station_place ON state.state_id = station_place.state_id WHERE station_place.station_id = :station_id AND place_id = :place_id;");
+    query.bindValue(":station_id", station_id);
+    query.bindValue(":place_id", place_id);
+    database->Exec(&query);
+    if (query.next())
+    {
+    ui->station_state_lineEdit_2->setText(query.record().value(0).toString());
+    }
+    //Platz 3
+    query.prepare("SELECT state_name FROM vpj.state INNER JOIN vpj.station_place ON state.state_id = station_place.state_id WHERE station_place.station_id = :station_id AND place_id = :place_id;");
+    query.bindValue(":station_id", station_id);
+    query.bindValue(":place_id", place_id +1);
+    database->Exec(&query);
+    if (query.next())
+    {
+    ui->station_state_lineEdit_3->setText(query.record().value(0).toString());
+    }
+}
+

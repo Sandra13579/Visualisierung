@@ -32,7 +32,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="tab">
      <property name="styleSheet">
@@ -169,7 +169,7 @@
        </rect>
       </property>
      </widget>
-     <widget class="QProgressBar" name="progressBar_1">
+     <widget class="QProgressBar" name="manufacturing_progressBar">
       <property name="geometry">
        <rect>
         <x>550</x>
@@ -213,7 +213,7 @@
        <string>Station</string>
       </property>
      </widget>
-     <widget class="QComboBox" name="production_order_name_comboBox_2">
+     <widget class="QComboBox" name="station_comboBox">
       <property name="geometry">
        <rect>
         <x>100</x>
@@ -236,7 +236,7 @@
        <string>Platz 2</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="production_order_state_lineEdit_4">
+     <widget class="QLineEdit" name="station_state_lineEdit_3">
       <property name="enabled">
        <bool>false</bool>
       </property>
@@ -278,7 +278,7 @@
        <string>Status</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="production_order_state_lineEdit_3">
+     <widget class="QLineEdit" name="station_state_lineEdit_2">
       <property name="enabled">
        <bool>false</bool>
       </property>

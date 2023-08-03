@@ -31,8 +31,10 @@ private slots:
     void on_pushButton_3_clicked();
 
     void on_production_order_name_comboBox_currentIndexChanged(int index);
-    void workpiece_table(int index);
+    int workpiece_table(int index);
 
+
+    void on_station_comboBox_currentIndexChanged(int index);
 
 private:
     Ui::MainWindow *ui;
