@@ -7,7 +7,7 @@ Paint::Paint(QWidget* parent) : QTextBrowser(parent)
 {
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &Paint::updateRobotPosition);
-    updateTimer->start(1000);
+    updateTimer->start(15);
 
     robotDB = new Datenbank(this);
     robotDB->Connect();

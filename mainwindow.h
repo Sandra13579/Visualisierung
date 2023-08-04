@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QStandardItemModel>
+#include <QTimer>
 #include <datenbank.h>
 
 QT_BEGIN_NAMESPACE
@@ -33,12 +34,15 @@ private slots:
     void on_production_order_name_comboBox_currentIndexChanged(int index);
     int workpiece_table(int index);
 
-
     void on_station_comboBox_currentIndexChanged(int index);
+
+    void on_product_lineEdit_textChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
     Datenbank *database;
     QStandardItemModel *model;
+    QTimer* updateTimer;
+    void updateRobotTab();
 };
 #endif // MAINWINDOW_H
