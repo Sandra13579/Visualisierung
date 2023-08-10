@@ -82,6 +82,7 @@ void MainWindow::on_pushButton_clicked()
     if (production_order_name == "" || number_of_pieces == 0)
     {
         QMessageBox order_msgBox;
+        order_msgBox.setWindowTitle("Meldung");
         order_msgBox.setText("Sie haben nicht alle Auftragseingaben getätigt.");
         order_msgBox.exec();
         qDebug() << "es wurde Eingabe vergessen";
@@ -148,6 +149,7 @@ void MainWindow::on_workpiece_pushButton_clicked()
     if (rfid == "")
     {
         QMessageBox order_msgBox;
+        order_msgBox.setWindowTitle("Meldung");
         order_msgBox.setText("Sie haben nicht alle Eingaben getätigt.");
         order_msgBox.exec();
     }
@@ -200,6 +202,7 @@ void MainWindow::on_workpiece_pushButton_clicked()
         else
         {
             QMessageBox order_msgBox;
+            order_msgBox.setWindowTitle("Meldung");
             order_msgBox.setText("Sie haben eine fehlerhafte Eingabe getätigt.");
             order_msgBox.exec();
         }
@@ -403,6 +406,7 @@ void MainWindow::on_production_order_name_comboBox_currentIndexChanged(int index
 
 int MainWindow::workpiece_table(int index) //Werkstückübersicht
 {
+    qDebug() << "index = " <<index;
     int total_processed = 0;
     QStandardItemModel *model = new QStandardItemModel(this);
     model->setHorizontalHeaderLabels({"Fertigungsschritt", "       Dauer     ", "       Stückzahl      "}); // Setze die Spaltenüberschriften
