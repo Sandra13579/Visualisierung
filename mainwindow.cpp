@@ -115,7 +115,7 @@ void MainWindow::on_pushButton_clicked()
 }
 
 //Werkst체ckverwaltung
-void MainWindow::on_comboBox_2_currentIndexChanged(int index)
+void MainWindow::on_comboBox_2_currentIndexChanged()
 {
     ui->comboBox_3->clear();
     if (ui->comboBox_2->currentIndex() == 0) //Wenn angeliefert gew채hlt wurde
@@ -211,7 +211,7 @@ void MainWindow::on_workpiece_pushButton_clicked()
 }
 
 //Wartungsverwaltung
-void MainWindow::on_comboBox_5_currentIndexChanged(int index) //Auswahl Roboter oder Station
+void MainWindow::on_comboBox_5_currentIndexChanged() //Auswahl Roboter oder Station
 {
     QSqlQuery query;
     if (ui->comboBox_5->currentIndex() == 0) //Wenn Roboter gew채hlt wurde
@@ -242,7 +242,7 @@ void MainWindow::on_comboBox_5_currentIndexChanged(int index) //Auswahl Roboter 
 }
 
 
-void MainWindow::on_comboBox_6_currentIndexChanged(int index)
+void MainWindow::on_comboBox_6_currentIndexChanged()
 {
     QSqlQuery query;
     if (ui->comboBox_5->currentIndex() == 0) //Wenn Roboter gew채hlt wurde
@@ -485,7 +485,7 @@ int MainWindow::workpiece_table(int index) //Werkst체ck체bersicht
     //ui->workpiece_tableView->resizeColumnsToContents();
 }
 
-void MainWindow::on_product_lineEdit_textChanged(const QString &arg1) //Bilder 채ndern
+void MainWindow::on_product_lineEdit_textChanged() //Bilder 채ndern
 {
     ui->picture_label->clear();
     if (ui->product_lineEdit->text() == "Tisch")
@@ -527,13 +527,17 @@ void MainWindow::on_product_lineEdit_textChanged(const QString &arg1) //Bilder �
 }
 
 //Station
-void MainWindow::on_station_comboBox_currentIndexChanged(int index)
+void MainWindow::on_station_comboBox_currentIndexChanged()
 {
     int station_id = ui->station_comboBox->currentIndex()+1;
     int place_id = 2;
+    ui->label_14->setText("Platz 2");
+    ui->label_15->setText("Platz 3");
     if (station_id == 9) //Ladestationen
     {
         place_id = 1;
+        ui->label_14->setText("Platz 1");
+        ui->label_15->setText("Platz 2");
     }
     QSqlQuery query;
     //Status
