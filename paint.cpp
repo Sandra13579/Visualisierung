@@ -9,15 +9,21 @@ Paint::Paint(QWidget* parent) : QTextBrowser(parent)
     connect(updateTimer, &QTimer::timeout, this, &Paint::updateRobotPosition);
     updateTimer->start(15);
 
-    robotDB = new Datenbank(this);
+    robotDB = new Datenbank("Painter");
     robotDB->Connect();
+}
+
+Paint::~Paint()
+{
+    updateTimer->stop();
+    robotDB->Disconnect();
 }
 
 void Paint::updateRobotPosition()
 {
-    QSqlQuery query;
+    QSqlQuery query(robotDB->db());
     query.prepare("SELECT robot_id, robot_position_x, robot_position_y, state_id, battery_level FROM vpj.robot;");
-    robotDB->Exec(&query);
+    query.exec();
 
     int id;
     if (!query.exec())

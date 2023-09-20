@@ -10,6 +10,7 @@ class Paint : public QTextBrowser
 {
 public:
     Paint(QWidget* parent = nullptr);
+    ~Paint();
 private:
     QTimer* updateTimer;
     void updateRobotPosition();

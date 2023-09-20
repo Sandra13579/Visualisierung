@@ -7,10 +7,9 @@
 #include "datenbank.h"
 
 //erstellt eine neue ODBC Datenbankverbindung
-Datenbank::Datenbank(QObject *parent)
-    : QObject{parent}
+Datenbank::Datenbank(QString connectionName)
 {
-    db = QSqlDatabase::addDatabase("QODBC");
+    _db = QSqlDatabase::addDatabase("QODBC", connectionName);
 }
 
 //Verbindung zu Datenbank aufbauen
@@ -21,27 +20,29 @@ void Datenbank::Connect()
         "SERVERNODE=127.0.0.1:3306;"
         "UID=root;"
         "PWD=vpj;");
-    db.setDatabaseName(connectString);
+    _db.setDatabaseName(connectString);
 
     //konnte die Verbindung aufgebaut werden?
-    if(db.open())
+    if(_db.open())
     {
-        qDebug() << "ok";
+        qDebug() << _db.connectionName() << "connected to database!";
     }
     else
     {
-        qDebug() << db.lastError().text();
+        qDebug() << _db.lastError().text();
     }
 }
 
 //Verbindung schließen/trennen
 void Datenbank::Disconnect()
 {
-    if(db.open())
+    if(_db.open())
     {
-        db.close();
+        _db.close();
+        qDebug() << _db.connectionName() << "disconnected from database!";
     }
 }
+
 
 //Datenbank Kommando ausführen = schreibend und lesend auf eine Datenbank zugreifen
 void Datenbank::Exec(QSqlQuery *query)
