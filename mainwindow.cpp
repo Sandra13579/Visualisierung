@@ -500,37 +500,37 @@ void MainWindow::on_product_lineEdit_textChanged() //Bilder ändern
     ui->picture_label->clear();
     if (ui->product_lineEdit->text() == "Tisch")
     {
-        QPixmap pic("C:/Users/Sandra/Pictures/Möbelbilder/Tisch.png");
+        QPixmap pic(":/images/Tisch.png");
             QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Stuhl")
     {
-        QPixmap pic("C:/Users/Sandra/Pictures/Möbelbilder/Stuhl.png");
+        QPixmap pic(":/images/Stuhl.png");
             QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Bett")
     {
-        QPixmap pic("C:/Users/Sandra/Pictures/Möbelbilder/Bett.png");
+        QPixmap pic(":/images/Bett.png");
             QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Regal")
     {
-        QPixmap pic("C:/Users/Sandra/Pictures/Möbelbilder/Regal.png");
+        QPixmap pic(":/images/Regal.png");
             QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Schrank")
     {
-        QPixmap pic("C:/Users/Sandra/Pictures/Möbelbilder/Schrank.png");
+        QPixmap pic(":/images/Schrank.png");
             QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Hocker")
     {
-        QPixmap pic("C:/Users/Sandra/Pictures/Möbelbilder/Hocker.png");
+        QPixmap pic(":/images/Hocker.png");
             QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
