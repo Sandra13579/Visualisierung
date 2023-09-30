@@ -53,7 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
         ui->station_comboBox->insertItem(i++, query.record().value(0).toString());
     }
 
-//Roboter
+//Tab Aktualisierung
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &MainWindow::updateTabs);
     updateTimer->start(1000);
@@ -61,11 +61,11 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::updateTabs()
 {
-    updateRobotTab();
+    updateRobotTab(); //Roboter
     int indexorder = ui->production_order_name_comboBox->currentIndex();
-    on_production_order_name_comboBox_currentIndexChanged(indexorder);
-    on_station_comboBox_currentIndexChanged();
-    on_comboBox_6_currentIndexChanged();
+    on_production_order_name_comboBox_currentIndexChanged(indexorder); //Aufträge
+    on_station_comboBox_currentIndexChanged(); //Station
+    on_comboBox_6_currentIndexChanged(); //Wartungsverwaltung
 }
 
 MainWindow::~MainWindow()
@@ -93,7 +93,7 @@ void MainWindow::on_pushButton_clicked()
         QMessageBox orderMsgBox;
         orderMsgBox.setWindowTitle("Meldung");
         orderMsgBox.setText("Sie haben nicht alle Auftragseingaben getätigt.");
-            orderMsgBox.exec();
+        orderMsgBox.exec();
         qDebug() << "es wurde Eingabe vergessen";
     }
     else
@@ -147,6 +147,9 @@ void MainWindow::on_workpiece_pushButton_clicked()
     //RFID auslesen
     QString rfid = ui->lineEdit_2->text();
     qDebug() << "RFID" << rfid;
+    //RFID Eingaben nur Zahlen?
+    bool isConvertibleToInt = false;
+    int rfidInt = rfid.toInt(&isConvertibleToInt);
     ui->lineEdit_2->clear();
     //Stationsauswahl auslesen
     int station = ui->comboBox_3->currentIndex() + 1;
@@ -160,6 +163,13 @@ void MainWindow::on_workpiece_pushButton_clicked()
         QMessageBox orderMsgBox;
         orderMsgBox.setWindowTitle("Meldung");
         orderMsgBox.setText("Sie haben keine RFID eingegeben.");
+        orderMsgBox.exec();
+    }
+    else if (!isConvertibleToInt) //keine reine Zahlenfolge
+    {
+        QMessageBox orderMsgBox;
+        orderMsgBox.setWindowTitle("Meldung");
+        orderMsgBox.setText("Ihre RFID Eingabe ist keine reine Zahlenfolge.");
         orderMsgBox.exec();
     }
     else
