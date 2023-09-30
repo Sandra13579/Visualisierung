@@ -55,8 +55,17 @@ MainWindow::MainWindow(QWidget *parent)
 
 //Roboter
     updateTimer = new QTimer(this);
-    connect(updateTimer, &QTimer::timeout, this, &MainWindow::updateRobotTab);
+    connect(updateTimer, &QTimer::timeout, this, &MainWindow::updateTabs);
     updateTimer->start(1000);
+}
+
+void MainWindow::updateTabs()
+{
+    updateRobotTab();
+    int indexorder = ui->production_order_name_comboBox->currentIndex();
+    on_production_order_name_comboBox_currentIndexChanged(indexorder);
+    on_station_comboBox_currentIndexChanged();
+    on_comboBox_6_currentIndexChanged();
 }
 
 MainWindow::~MainWindow()
@@ -150,8 +159,8 @@ void MainWindow::on_workpiece_pushButton_clicked()
     {
         QMessageBox orderMsgBox;
         orderMsgBox.setWindowTitle("Meldung");
-        orderMsgBox.setText("Sie haben nicht alle Eingaben getätigt.");
-            orderMsgBox.exec();
+        orderMsgBox.setText("Sie haben keine RFID eingegeben.");
+        orderMsgBox.exec();
     }
     else
     {
@@ -161,28 +170,40 @@ void MainWindow::on_workpiece_pushButton_clicked()
         }
         rfid = tr("%1").arg(rfid);
         QDateTime currentTime = QDateTime::currentDateTime(); //aktueller Zeitstempel
-        query.prepare("SELECT station_place_id FROM vpj.station_place WHERE station_id = :station_id AND place_id = :place_id");
+        query.prepare("SELECT station_place_id, state_id FROM vpj.station_place WHERE station_id = :station_id AND place_id = :place_id");
         query.bindValue(":station_id", station);
         query.bindValue(":place_id", place);
         query.exec();
         int stationPlaceId = 0;
         query.next();
         stationPlaceId = query.record().value(0).toInt();
+
         if (checkInOut == 0) //angeliefert
         {
-            query.prepare("INSERT INTO vpj.workpiece (rfid,  checked_in, timestamp, workpiece_state_id, station_place_id) VALUES (:rfid, :checked_in, :timestamp, :state_id, :place_id)");
-            query.bindValue(":rfid", rfid);
-            query.bindValue(":checked_in", 1);
-            query.bindValue(":timestamp", currentTime);
-            query.bindValue(":state_id", 1);
-            query.bindValue(":place_id", stationPlaceId);
-            query.exec();
+            if (query.record().value(1).toInt() == 0) //Stationsplatz frei?
+            {
+                query.prepare("INSERT INTO vpj.workpiece (rfid,  checked_in, timestamp, workpiece_state_id, station_place_id) VALUES (:rfid, :checked_in, :timestamp, :state_id, :place_id)");
+                query.bindValue(":rfid", rfid);
+                query.bindValue(":checked_in", 1);
+                query.bindValue(":timestamp", currentTime);
+                query.bindValue(":state_id", 1);
+                query.bindValue(":place_id", stationPlaceId);
+                query.exec();
 
-            query.prepare("UPDATE vpj.station_place SET state_id = :state_id WHERE station_place_id = :place_id");
-            query.bindValue(":state_id", 1);
-            query.bindValue(":place_id", stationPlaceId);
-            query.exec();
+                query.prepare("UPDATE vpj.station_place SET state_id = :state_id WHERE station_place_id = :place_id");
+                query.bindValue(":state_id", 1);
+                query.bindValue(":place_id", stationPlaceId);
+                query.exec();
+            }
+            else
+            {
+                QMessageBox orderMsgBox;
+                orderMsgBox.setWindowTitle("Meldung");
+                orderMsgBox.setText("Der gewählte Stationsplatz ist bereits belegt.");
+                orderMsgBox.exec();
+            }
         }
+
         else if (checkInOut == 1) //ausgeliefert
         {
             query.prepare("SELECT rfid FROM vpj.workpiece INNER JOIN vpj.station_place ON station_place.station_place_id = workpiece.station_place_id WHERE workpiece.rfid = :rfid AND workpiece.workpiece_state_id = 0 AND workpiece.station_place_id = :station_place_id;");
@@ -203,8 +224,8 @@ void MainWindow::on_workpiece_pushButton_clicked()
             {
                 QMessageBox orderMsgBox;
                 orderMsgBox.setWindowTitle("Meldung");
-                orderMsgBox.setText("Sie haben eine fehlerhafte Eingabe getätigt.");
-                    orderMsgBox.exec();
+                orderMsgBox.setText("Die gewünschte RFID befindet sich nicht an dem gewählten Stationsplatz.");
+                orderMsgBox.exec();
             }
         }
     }

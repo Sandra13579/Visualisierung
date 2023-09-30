@@ -19,6 +19,8 @@ public:
     ~MainWindow();
 
 private slots:
+    void updateTabs();
+
     void on_pushButton_clicked();
 
     void on_comboBox_2_currentIndexChanged();
