@@ -214,7 +214,7 @@ void MainWindow::on_workpiece_pushButton_clicked()
             }
         }
 
-        else if (checkInOut == 1) //ausgeliefert
+        else //ausgeliefert
         {
             query.prepare("SELECT rfid FROM vpj.workpiece INNER JOIN vpj.station_place ON station_place.station_place_id = workpiece.station_place_id WHERE workpiece.rfid = :rfid AND workpiece.workpiece_state_id = 0 AND workpiece.station_place_id = :station_place_id;");
             query.bindValue(":rfid", rfid);
@@ -260,7 +260,7 @@ void MainWindow::on_comboBox_5_currentIndexChanged() //Auswahl Roboter oder Stat
     else //Wenn Station gewählt wurde
     {
         ui->comboBox_6->clear();
-        query.prepare("SELECT station_name FROM vpj.station WHERE station_id < 9 ORDER BY station_id ASC;;");
+        query.prepare("SELECT station_name FROM vpj.station WHERE station_id < 9 ORDER BY station_id ASC;");
         query.exec();
         int i = 0;
         while (query.next())
@@ -279,7 +279,7 @@ void MainWindow::on_comboBox_6_currentIndexChanged()
     {
         ui->pushButton_3->setText("Roboter in Wartung schicken");
         QSqlQuery query(database->db());
-        query.prepare("SELECT `robot_id` FROM `vpj`.`robot` WHERE state_id = 3;");
+        query.prepare("SELECT robot_id FROM vpj.robot WHERE state_id = 3;");
         query.exec();
         int robotIdState3;
         while (query.next())
@@ -300,7 +300,7 @@ void MainWindow::on_comboBox_6_currentIndexChanged()
         if (stationIdSelected > 8)
         {
             QSqlQuery query(database->db());
-            query.prepare("SELECT maintenance FROM `vpj`.`station_place` WHERE station_id =9 AND place_id = :place_id_selected ");
+            query.prepare("SELECT maintenance FROM vpj.station_place WHERE station_id =9 AND place_id = :place_id_selected ");
             query.bindValue(":place_id_selected", stationIdSelected - 8);
             query.exec();
             query.next();
@@ -314,7 +314,7 @@ void MainWindow::on_comboBox_6_currentIndexChanged()
         {
             //Bearbeitungsstationen (1-8)
             QSqlQuery query(database->db());
-            query.prepare("SELECT maintenance FROM `vpj`.`station` WHERE station_id = :station_id_selected ;");
+            query.prepare("SELECT maintenance FROM vpj.station WHERE station_id = :station_id_selected ;");
             query.bindValue(":station_id_selected", stationIdSelected);
             query.exec();
             query.next();
@@ -339,7 +339,7 @@ void MainWindow::on_pushButton_3_clicked() //in Wartung schicken, aus Wartung ra
         query.bindValue(":robot_id", ui->comboBox_6->currentIndex()+1);
         query.exec();
     }
-    if ( ui->pushButton_3->text() == "Roboter in Betrieb nehmen")
+    else if ( ui->pushButton_3->text() == "Roboter in Betrieb nehmen")
     {
         QSqlQuery query(database->db());
         query.prepare("UPDATE vpj.robot SET maintenance = 0, timestamp = :timestamp, state_id = 0, jobtype_id = 3 WHERE robot_id = :robot_id");
@@ -347,7 +347,7 @@ void MainWindow::on_pushButton_3_clicked() //in Wartung schicken, aus Wartung ra
         query.bindValue(":timestamp", currentTime);
         query.exec();
     }
-    if ( ui->pushButton_3->text() == "Station in Wartung schicken")
+    else if ( ui->pushButton_3->text() == "Station in Wartung schicken")
     {
         int stationId = ui->comboBox_6->currentIndex()+1;
 
@@ -376,7 +376,7 @@ void MainWindow::on_pushButton_3_clicked() //in Wartung schicken, aus Wartung ra
             query.exec();
         }
     }
-    if ( ui->pushButton_3->text() == "Station in Betrieb nehmen")
+    else if ( ui->pushButton_3->text() == "Station in Betrieb nehmen")
     {
         int station_id = ui->comboBox_6->currentIndex()+1;
 
@@ -468,7 +468,7 @@ int MainWindow::workpiece_table(int index) //Werkstückübersicht
         query.bindValue(":order_id", index);
         query.bindValue(":step_id", row);
         query.exec();
-        if (query.next() && row != 5)
+        if (query.next() && row < 5)
         {
             duration = tr("%1").arg(query.record().value(0).toInt());
             qDebug() << "in Duration = " << query.record().value(0).toInt();
@@ -492,33 +492,35 @@ int MainWindow::workpiece_table(int index) //Werkstückübersicht
         {
             QStandardItem *emptyItem = new QStandardItem();
             model->setItem(row, 1, emptyItem);
+            if (row < 5)
+            {
             model->setItem(row, 2, emptyItem);
+            }
+            else if (row == 5) //Stückzahl, fertig produziert
+            {
+                query.prepare("SELECT COUNT(*) FROM vpj.workpiece WHERE production_order_id = :order_id AND workpiece_state_id = 0;");
+                query.bindValue(":order_id", index);
+                query.exec();
+                query.next();
+                totalProcessed = query.record().value(0).toInt();
+                counts = tr("%1").arg(query.record().value(0).toInt());
+                qDebug() << "in counts = " << query.record().value(0).toInt();
+                QStandardItem *countsItem = new QStandardItem(counts);
+                model->setItem(row, 2, countsItem);
+            }
+            else if (row == 6) //Stückzahl, ausgeliefert
+            {
+                query.prepare("SELECT COUNT(*) FROM vpj.workpiece WHERE production_order_id = :order_id AND workpiece_state_id = 4;");
+                query.bindValue(":order_id", index);
+                query.exec();
+                query.next();
+                totalProcessed += query.record().value(0).toInt();
+                counts = tr("%1").arg(query.record().value(0).toInt());
+                qDebug() << "in counts = " << query.record().value(0).toInt();
+                QStandardItem *countsItem = new QStandardItem(counts);
+                model->setItem(row, 2, countsItem);
+            }
         }
-        if (row == 5) //Stückzahl, fertig produziert
-        {
-            query.prepare("SELECT COUNT(*) FROM vpj.workpiece WHERE production_order_id = :order_id AND workpiece_state_id = 0;");
-            query.bindValue(":order_id", index);
-            query.exec();
-            query.next();
-            totalProcessed = query.record().value(0).toInt();
-            counts = tr("%1").arg(query.record().value(0).toInt());
-            qDebug() << "in counts = " << query.record().value(0).toInt();
-            QStandardItem *countsItem = new QStandardItem(counts);
-            model->setItem(row, 2, countsItem);
-        }
-        if (row == 6) //Stückzahl, ausgeliefert
-        {
-            query.prepare("SELECT COUNT(*) FROM vpj.workpiece WHERE production_order_id = :order_id AND workpiece_state_id = 4;");
-            query.bindValue(":order_id", index);
-            query.exec();
-            query.next();
-            totalProcessed += query.record().value(0).toInt();
-            counts = tr("%1").arg(query.record().value(0).toInt());
-            qDebug() << "in counts = " << query.record().value(0).toInt();
-            QStandardItem *countsItem = new QStandardItem(counts);
-            model->setItem(row, 2, countsItem);
-        }
-
     }
     ui->workpiece_tableView->setModel(model); // erstellt die Tabelle
     return totalProcessed;
@@ -532,37 +534,37 @@ void MainWindow::on_product_lineEdit_textChanged() //Bilder ändern
     if (ui->product_lineEdit->text() == "Tisch")
     {
         QPixmap pic(":/images/Tisch.png");
-            QSize labelSize = ui->picture_label->size();
+        QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Stuhl")
     {
         QPixmap pic(":/images/Stuhl.png");
-            QSize labelSize = ui->picture_label->size();
+        QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Bett")
     {
         QPixmap pic(":/images/Bett.png");
-            QSize labelSize = ui->picture_label->size();
+        QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Regal")
     {
         QPixmap pic(":/images/Regal.png");
-            QSize labelSize = ui->picture_label->size();
+        QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Schrank")
     {
         QPixmap pic(":/images/Schrank.png");
-            QSize labelSize = ui->picture_label->size();
+        QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
     if (ui->product_lineEdit->text() == "Hocker")
     {
         QPixmap pic(":/images/Hocker.png");
-            QSize labelSize = ui->picture_label->size();
+        QSize labelSize = ui->picture_label->size();
         ui->picture_label->setPixmap(pic.scaled(labelSize, Qt::KeepAspectRatio));
     }
 }
@@ -648,7 +650,7 @@ void MainWindow::updateRobotTab()
                 }
                 else {ui->robot1_progressBar->setValue(0);}
             }
-            if (i == 2) //Roboter 2
+            else if (i == 2) //Roboter 2
             {
                 ui->robot2_workpieces_lineEdit->setText(query2.record().value(0).toString());
 
@@ -660,7 +662,7 @@ void MainWindow::updateRobotTab()
                 }
                 else {ui->robot2_progressBar->setValue(0);}
             }
-            if (i == 3) //Roboter 3
+            else if (i == 3) //Roboter 3
             {
                 ui->robot3_workpieces_lineEdit->setText(query2.record().value(0).toString());
 
@@ -672,7 +674,7 @@ void MainWindow::updateRobotTab()
                 }
                 else {ui->robot3_progressBar->setValue(0);}
             }
-            if (i == 4) //Roboter 4
+            else if (i == 4) //Roboter 4
             {
                 ui->robot4_workpieces_lineEdit->setText(query2.record().value(0).toString());
 
