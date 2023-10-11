@@ -433,10 +433,17 @@ void MainWindow::on_production_order_name_comboBox_currentIndexChanged(int index
     query.prepare("SELECT number_of_pieces FROM vpj.production_order WHERE production_order.order_name = :order_name;");
     query.bindValue(":order_name", orderName);
     query.exec();
-    query.next();
-    int numberOfPieces = query.record().value(0).toInt();
+    if (query.next())
+    {
+        int numberOfPieces = query.record().value(0).toInt();
 
-    ui->manufacturing_progressBar->setValue(100/numberOfPieces * totalProcessed);
+        ui->manufacturing_progressBar->setValue(100/numberOfPieces * totalProcessed);
+    }
+    else
+    {
+        ui->manufacturing_progressBar->setValue(0);
+    }
+
 }
 
 
