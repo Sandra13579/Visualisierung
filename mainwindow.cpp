@@ -66,6 +66,7 @@ void MainWindow::updateTabs()
     on_production_order_name_comboBox_currentIndexChanged(indexorder); //Aufträge
     on_station_comboBox_currentIndexChanged(); //Station
     on_comboBox_6_currentIndexChanged(); //Wartungsverwaltung
+    fault(); //Fehlermeldung
 }
 
 MainWindow::~MainWindow()
@@ -449,7 +450,7 @@ void MainWindow::on_production_order_name_comboBox_currentIndexChanged(int index
 
 int MainWindow::workpiece_table(int index) //Werkstückübersicht
 {
-    qDebug() << "index = " <<index;
+    //qDebug() << "index = " <<index;
     int totalProcessed = 0;
 
     //Sicherstellen, dass die Zeigerobjekte auch wieder gelöscht werden!
@@ -478,7 +479,7 @@ int MainWindow::workpiece_table(int index) //Werkstückübersicht
         if (query.next() && row < 5)
         {
             duration = tr("%1").arg(query.record().value(0).toInt());
-            qDebug() << "in Duration = " << query.record().value(0).toInt();
+            //qDebug() << "in Duration = " << query.record().value(0).toInt();
             QStandardItem *durationItem = new QStandardItem(duration);
             model->setItem(row, 1, durationItem);
 
@@ -490,7 +491,7 @@ int MainWindow::workpiece_table(int index) //Werkstückübersicht
             if (query.next())
             {
                 counts = tr("%1").arg(query.record().value(0).toInt());
-                qDebug() << "in counts = " << query.record().value(0).toInt();
+                //qDebug() << "in counts = " << query.record().value(0).toInt();
                 QStandardItem *countsItem = new QStandardItem(counts);
                 model->setItem(row, 2, countsItem);
             }
@@ -511,7 +512,7 @@ int MainWindow::workpiece_table(int index) //Werkstückübersicht
                 query.next();
                 totalProcessed = query.record().value(0).toInt();
                 counts = tr("%1").arg(query.record().value(0).toInt());
-                qDebug() << "in counts = " << query.record().value(0).toInt();
+                //qDebug() << "in counts = " << query.record().value(0).toInt();
                 QStandardItem *countsItem = new QStandardItem(counts);
                 model->setItem(row, 2, countsItem);
             }
@@ -523,7 +524,7 @@ int MainWindow::workpiece_table(int index) //Werkstückübersicht
                 query.next();
                 totalProcessed += query.record().value(0).toInt();
                 counts = tr("%1").arg(query.record().value(0).toInt());
-                qDebug() << "in counts = " << query.record().value(0).toInt();
+                //qDebug() << "in counts = " << query.record().value(0).toInt();
                 QStandardItem *countsItem = new QStandardItem(counts);
                 model->setItem(row, 2, countsItem);
             }
@@ -697,3 +698,101 @@ void MainWindow::updateRobotTab()
     }
     update();
 }
+
+//Fehler
+void MainWindow::fault()
+{
+    ui->label_21->setText("");
+
+    //Ladestation wurde nicht richtig verbunden
+    QSqlQuery query(database->db());
+    query.prepare("SELECT robot_id, station_place_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id = 25 OR station_place_id = 26);");
+    query.exec();
+    if (query.next())
+    {
+        QString faultText = "Roboter " + query.record().value(0).toString() + " wurde nicht richtig mit der Ladestation ";
+        if (query.record().value(1).toInt() == 25)
+        {
+            faultText += "1";
+        }
+        else
+        {
+            faultText += "2";
+        }
+        faultText += " verbunden!";
+        ui->label_21->setStyleSheet("color: red;");
+        ui->label_21->setText(faultText);
+    }
+    else
+    {
+        //es wurde eine falsche RFID eingelesen
+        query.prepare("SELECT station_id FROM vpj.station WHERE state_id = 4;");
+        query.exec();
+        if (query.next())
+        {
+            QString faultText = "Es liegt ein falsches Werkstück unter dem RFID-Reader " + query.record().value(0).toString();
+            ui->label_21->setStyleSheet("color: red;");
+            ui->label_21->setText(faultText);
+        }
+        else
+        {
+            //ein werkstück wurde verloren
+            query.prepare("SELECT robot_id, station_place_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id != 25 OR station_place_id != 26);");
+            query.exec();
+            if (query.next())
+            {
+                QString faultText = "Der Roboter " + query.record().value(0).toString() + " hat ein Werkstück verloren";
+                ui->label_21->setStyleSheet("color: red;");
+                ui->label_21->setText(faultText);
+            }
+        }
+    }
+}
+
+void MainWindow::on_fault_pushButton_clicked()
+{
+    QSqlQuery query(database->db());
+    query.prepare("SELECT robot_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id = 25 OR station_place_id = 26);");
+    query.exec();
+    if (query.next())
+    {
+        QSqlQuery query2(database->db());
+        query2.prepare("UPDATE vpj.robot SET state_id = 8 WHERE robot_id = :robot_id;");
+        query2.bindValue(":robot_id", query.record().value(0).toString());
+        query2.exec();
+    }
+    else
+    {
+        query.prepare("SELECT station_id FROM vpj.station WHERE state_id = 4;");
+        query.exec();
+        if (query.next())
+        {
+            QSqlQuery query2(database->db());
+            QSqlQuery query3(database->db());
+            query2.prepare("UPDATE vpj.station SET state_id = 1 WHERE station_id = :station_id;"); //Station belegen
+            query2.bindValue(":station_id", query.record().value(0).toString());
+            query2.exec();
+            query2.prepare("SELECT robot_id FROM vpj.robot r INNER JOIN vpj.station_place sp ON r.station_place_id = sp.station_place_id WHERE sp.station_id = :station_id;");
+            query2.bindValue(":station_id", query.record().value(0).toString());
+            query2.exec();
+            query2.next();
+            query3.prepare("UPDATE vpj.robot SET state_id = 0 WHERE robot_id = :robot_id;"); //Roboter frei geben
+            query3.bindValue(":robot_id", query2.record().value(0).toString());
+            query3.exec();
+            //stationsplätze?????
+        }
+        else
+        {
+            query.prepare("SELECT robot_id, station_place_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id != 25 OR station_place_id != 26);");
+            query.exec();
+            if (query.next())
+            {
+                query2.prepare("UPDATE vpj.robot SET state_id = 0 WHERE robot_id = :robot_id;"); //Roboter frei geben
+                query2.bindValue(":robot_id", query2.record().value(0).toString());
+                query2.exec();
+            }
+            //stationsplätze??????
+        }
+    }
+}
+

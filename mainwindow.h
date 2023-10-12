@@ -40,6 +40,10 @@ private slots:
 
     void on_product_lineEdit_textChanged();
 
+    void fault();
+
+    void on_fault_pushButton_clicked();
+
 private:
     Ui::MainWindow *ui;
     Datenbank *database;
