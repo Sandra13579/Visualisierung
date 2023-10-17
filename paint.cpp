@@ -49,16 +49,16 @@ void Paint::updateRobotPosition()
 void Paint::paintEvent(QPaintEvent* e)
 {
     QTextBrowser::paintEvent(e);
-    QPainter finished_parts_warehouse(this->viewport());
-    finished_parts_warehouse.fillRect(105, 97, 13, 32, Qt::gray);
-    QPainter machine34(this->viewport());
-    machine34.fillRect(225, 97, 13, 32, Qt::gray);
-    QPainter machine12(this->viewport());
-    machine12.fillRect(345, 97, 13, 32, Qt::gray);
-    QPainter raw_material_parts_warehouse(this->viewport());
-    raw_material_parts_warehouse.fillRect(465, 97, 13, 32, Qt::gray);
-    QPainter charging_station(this->viewport());
-    charging_station.fillRect(613, 0, 60, 28, Qt::gray);
+//    QPainter finished_parts_warehouse(this->viewport());
+//    finished_parts_warehouse.fillRect(105, 97, 13, 32, Qt::gray);
+//    QPainter machine34(this->viewport());
+//    machine34.fillRect(225, 97, 13, 32, Qt::gray);
+//    QPainter machine12(this->viewport());
+//    machine12.fillRect(345, 97, 13, 32, Qt::gray);
+//    QPainter raw_material_parts_warehouse(this->viewport());
+//    raw_material_parts_warehouse.fillRect(465, 97, 13, 32, Qt::gray);
+//    QPainter charging_station(this->viewport());
+//    charging_station.fillRect(613, 0, 60, 28, Qt::gray);
     QPainter robot(this->viewport());
     for (int i = 1; i < 5; i++)
     {

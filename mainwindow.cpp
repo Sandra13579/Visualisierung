@@ -13,6 +13,16 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    //Slot connections for buttons etc.
+    connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::pushButtonClicked);
+    connect(ui->workpiece_pushButton, &QPushButton::clicked, this, &MainWindow::WorkpiecePushButtonClicked);
+    connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::pushButton3Clicked);
+    connect(ui->fault_pushButton, &QPushButton::clicked, this, &MainWindow::faultPushButtonClicked);
+    connect(ui->comboBox_2, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox2CurrentIndexChanged);
+    connect(ui->comboBox_5, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox5CurrentIndexChanged);
+    connect(ui->comboBox_6, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox6CurrentIndexChanged);
+    connect(ui->production_order_name_comboBox, &QComboBox::currentIndexChanged, this, &::MainWindow::productionOrderNameComboBoxCurrentIndexChanged);
+
     database = new Datenbank("Visualization");
     database->Connect();
 
@@ -53,6 +63,24 @@ MainWindow::MainWindow(QWidget *parent)
         ui->station_comboBox->insertItem(i++, query.record().value(0).toString());
     }
 
+
+//Station labels
+    ui->pushButton_2->setGeometry(105, 97, 13, 32); //Station 7,8
+    connect(ui->pushButton_2, &QPushButton::clicked, this, [=]() { showStationPanel(7); });
+    ui->pushButton_4->setGeometry(225, 97, 13, 32); //Station 5,6
+    connect(ui->pushButton_4, &QPushButton::clicked, this, [=]() { showStationPanel(5); });
+    ui->pushButton_5->setGeometry(345, 97, 13, 32); //Station 3,4
+    connect(ui->pushButton_5, &QPushButton::clicked, this, [=]() { showStationPanel(3); });
+    ui->pushButton_6->setGeometry(465, 97, 13, 32); //Station 1,2
+    connect(ui->pushButton_6, &QPushButton::clicked, this, [=]() { showStationPanel(1); });
+    ui->pushButton_7->setGeometry(613, 0, 60, 28);  //Charging station 1,2 (9)
+    connect(ui->pushButton_7, &QPushButton::clicked, this, [=]() { showStationPanel(9); });
+
+    ui->groupBox->setVisible(false);
+
+    stationUpdateTimer = new QTimer(this);
+    connect(stationUpdateTimer, &QTimer::timeout, this, &MainWindow::updateStationStatus);
+
 //Tab Aktualisierung
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &MainWindow::updateTabs);
@@ -63,10 +91,56 @@ void MainWindow::updateTabs()
 {
     updateRobotTab(); //Roboter
     int indexorder = ui->production_order_name_comboBox->currentIndex();
-    on_production_order_name_comboBox_currentIndexChanged(indexorder); //Aufträge
+    productionOrderNameComboBoxCurrentIndexChanged(indexorder); //Aufträge
     on_station_comboBox_currentIndexChanged(); //Station
-    on_comboBox_6_currentIndexChanged(); //Wartungsverwaltung
+    comboBox6CurrentIndexChanged(ui->comboBox_6->currentIndex()); //Wartungsverwaltung
     fault(); //Fehlermeldung
+}
+
+void MainWindow::updateStationStatus()
+{
+    switch (selectedStation) {
+    case 0:
+        break;
+    case 9:
+    {
+        QSqlQuery query(database->db());
+        query.prepare("SELECT station_id, state_id FROM vpj.station_place WHERE station_id = 9");
+        query.exec();
+        QList<int> states;
+        while (query.next())
+        {
+            states.append(query.record().value(1).toInt());
+        }
+        setLabelColorFromState(ui->label_stat11, states[0]);
+        setLabelColorFromState(ui->label_stat12, -1);
+        setLabelColorFromState(ui->label_stat13, -1);
+        setLabelColorFromState(ui->label_stat21, states[1]);
+        setLabelColorFromState(ui->label_stat22, -1);
+        setLabelColorFromState(ui->label_stat23, -1);
+        break;
+    }
+    default:
+    {
+        QSqlQuery query(database->db());
+        query.prepare("SELECT station_id, state_id FROM vpj.station_place WHERE station_id IN (:station_id_1,:station_id_2)");
+        query.bindValue(":station_id_1", selectedStation);
+        query.bindValue(":station_id_2", selectedStation + 1);
+        query.exec();
+        QList<int> states;
+        while (query.next())
+        {
+            states.append(query.record().value(1).toInt());
+        }
+        setLabelColorFromState(ui->label_stat11, states[0]);
+        setLabelColorFromState(ui->label_stat12, states[1]);
+        setLabelColorFromState(ui->label_stat13, states[2]);
+        setLabelColorFromState(ui->label_stat21, states[3]);
+        setLabelColorFromState(ui->label_stat22, states[4]);
+        setLabelColorFromState(ui->label_stat23, states[5]);
+        break;
+    }
+    }
 }
 
 MainWindow::~MainWindow()
@@ -76,7 +150,7 @@ MainWindow::~MainWindow()
 }
 
 //Auftragsverwaltung
-void MainWindow::on_pushButton_clicked()
+void MainWindow::pushButtonClicked()
 {
     //Auftragsname auslesen
     QString productionOrderName = ui->lineEdit->text();
@@ -125,20 +199,21 @@ void MainWindow::on_pushButton_clicked()
 }
 
 //Werkstückverwaltung
-void MainWindow::on_comboBox_2_currentIndexChanged()
+void MainWindow::comboBox2CurrentIndexChanged(int index)
 {
     ui->comboBox_3->clear();
-    if (ui->comboBox_2->currentIndex() == 0) //Wenn angeliefert gewählt wurde
+    switch (index)
     {
+    case 0:
         ui->comboBox_3->insertItems(0, { "Rohstoffteillager 1", "Rohstoffteillager 2"});
-    }
-    else
-    {
+        break;
+    case 1:
         ui->comboBox_3->insertItems(0, { "Fertigteillager 1", "Fertigteillager 2"});
+        break;
     }
 }
 
-void MainWindow::on_workpiece_pushButton_clicked()
+void MainWindow::WorkpiecePushButtonClicked()
 {
     QSqlQuery query(database->db());
 
@@ -243,40 +318,39 @@ void MainWindow::on_workpiece_pushButton_clicked()
 }
 
 //Wartungsverwaltung
-void MainWindow::on_comboBox_5_currentIndexChanged() //Auswahl Roboter oder Station
+void MainWindow::comboBox5CurrentIndexChanged(int index) //Auswahl Roboter oder Station
 {
+    ui->comboBox_6->clear();
     QSqlQuery query(database->db());
-    if (ui->comboBox_5->currentIndex() == 0) //Wenn Roboter gewählt wurde
+    switch (index)
     {
-        ui->comboBox_6->clear();    //vorherige Items löschen, damit die nächsten nicht angehängt werden
+    case 0: //if robot is selected
         //Welche Roboter gibt es in DB?
         query.prepare("SELECT robot_id FROM vpj.robot ORDER BY robot_id ASC;");
         query.exec();
-        int i = 0;
         while (query.next())
         {
-            ui->comboBox_6->insertItem(i++, query.record().value(0).toString());  //Roboter_id in Auswahlfeld schreiben
+            ui->comboBox_6->addItem(query.record().value(0).toString());    //Roboter_id in Auswahlfeld schreiben
         }
-    }
-    else //Wenn Station gewählt wurde
-    {
-        ui->comboBox_6->clear();
+        break;
+    case 1: //if station is selected
         query.prepare("SELECT station_name FROM vpj.station WHERE station_id < 9 ORDER BY station_id ASC;");
         query.exec();
-        int i = 0;
         while (query.next())
         {
-            ui->comboBox_6->insertItem(i++, query.record().value(0).toString());  //Stationsnamen in Auswahlfeld schreiben
+            ui->comboBox_6->addItem(query.record().value(0).toString());    //Stationsnamen in Auswahlfeld schreiben
         }
-        ui->comboBox_6->insertItem(i++, "Ladestation 1");
-        ui->comboBox_6->insertItem(i++, "Ladestation 2");
+        ui->comboBox_6->addItems({ "Ladestation 1", "Ladestation 2" });
+        break;
     }
 }
 
 
-void MainWindow::on_comboBox_6_currentIndexChanged()
+void MainWindow::comboBox6CurrentIndexChanged(int index)
 {
-    if (ui->comboBox_5->currentIndex() == 0) //Wenn Roboter gewählt wurde
+    index++;    //index count starts at "0" but the robot id starts at "1"
+    switch (ui->comboBox_5->currentIndex()) {
+    case 0:
     {
         ui->pushButton_3->setText("Roboter in Wartung schicken");
         QSqlQuery query(database->db());
@@ -285,27 +359,26 @@ void MainWindow::on_comboBox_6_currentIndexChanged()
         int robotIdState3;
         while (query.next())
         {
-            robotIdState3=query.record().value(0).toInt();
-            if (ui->comboBox_6->currentIndex()+1 == robotIdState3) //wenn ausgewählter Roboter bereits in Wartung ist
+            robotIdState3 = query.record().value(0).toInt();
+            if (index == robotIdState3) //wenn ausgewählter Roboter bereits in Wartung ist
             {
                 ui->pushButton_3->setText("Roboter in Betrieb nehmen");
             }
         }
+        break;
     }
-    else // wenn Station gewählt wurde
-    {
+    case 1:
         ui->pushButton_3->setText("Station in Wartung schicken");
-        int stationIdSelected = ui->comboBox_6->currentIndex()+1;
-        qDebug() << "station_id_selected = " << stationIdSelected;
-        //Ladestation
-        if (stationIdSelected > 8)
+        //qDebug() << "station_id_selected = " << index;
+        if (index > 8)
         {
+            //Charging station selected
             QSqlQuery query(database->db());
             query.prepare("SELECT maintenance FROM vpj.station_place WHERE station_id =9 AND place_id = :place_id_selected ");
-            query.bindValue(":place_id_selected", stationIdSelected - 8);
+            query.bindValue(":place_id_selected", index - 8);
             query.exec();
             query.next();
-            qDebug() << "Ladestation " << query.record().value(0).toInt();
+            //qDebug() << "Ladestation " << query.record().value(0).toInt();
             if (query.record().value(0).toInt() == 1) //wenn ausgewählte Station bereits in Wartung ist
             {
                 ui->pushButton_3->setText("Station in Betrieb nehmen");
@@ -316,20 +389,21 @@ void MainWindow::on_comboBox_6_currentIndexChanged()
             //Bearbeitungsstationen (1-8)
             QSqlQuery query(database->db());
             query.prepare("SELECT maintenance FROM vpj.station WHERE station_id = :station_id_selected ;");
-            query.bindValue(":station_id_selected", stationIdSelected);
+            query.bindValue(":station_id_selected", index);
             query.exec();
             query.next();
-            qDebug() << "in Maintenance = " << query.record().value(0).toInt();
+            //qDebug() << "in Maintenance = " << query.record().value(0).toInt();
             if (query.record().value(0).toInt() == 1) //wenn ausgewählte Station bereits in Wartung ist
             {
                 ui->pushButton_3->setText("Station in Betrieb nehmen");
             }
         }
+        break;
     }
 }
 
 
-void MainWindow::on_pushButton_3_clicked() //in Wartung schicken, aus Wartung rausholen
+void MainWindow::pushButton3Clicked() //in Wartung schicken, aus Wartung rausholen
 {
     QDateTime currentTime = QDateTime::currentDateTime(); //aktueller Zeitstempel
 
@@ -409,7 +483,7 @@ void MainWindow::on_pushButton_3_clicked() //in Wartung schicken, aus Wartung ra
 }
 
 //Aufträge
-void MainWindow::on_production_order_name_comboBox_currentIndexChanged(int index)
+void MainWindow::productionOrderNameComboBoxCurrentIndexChanged(int index)
 {
     //Wekstückeübersicht
     int totalProcessed = workpiece_table(index +1);
@@ -444,9 +518,7 @@ void MainWindow::on_production_order_name_comboBox_currentIndexChanged(int index
     {
         ui->manufacturing_progressBar->setValue(0);
     }
-
 }
-
 
 int MainWindow::workpiece_table(int index) //Werkstückübersicht
 {
@@ -455,8 +527,8 @@ int MainWindow::workpiece_table(int index) //Werkstückübersicht
 
     //Sicherstellen, dass die Zeigerobjekte auch wieder gelöscht werden!
     //Sonst ist der Speicher irgendwann voll...
+    model = new QStandardItemModel();
 
-    QStandardItemModel *model = new QStandardItemModel(this);
     model->setHorizontalHeaderLabels({"Fertigungsschritt", "       Dauer     ", "       Stückzahl      "}); // Setze die Spaltenüberschriften
 
     QList<QString> fertigungsschritte = {"unbearbeitet", "sägen", "schleifen", "lackieren", "polstern", "fertig produziert", "ausgeliefert"};
@@ -502,7 +574,7 @@ int MainWindow::workpiece_table(int index) //Werkstückübersicht
             model->setItem(row, 1, emptyItem);
             if (row < 5)
             {
-            model->setItem(row, 2, emptyItem);
+                model->setItem(row, 2, emptyItem);
             }
             else if (row == 5) //Stückzahl, fertig produziert
             {
@@ -631,72 +703,82 @@ void MainWindow::on_station_comboBox_currentIndexChanged()
 //Roboter
 void MainWindow::updateRobotTab()
 {
-    for (int i = 1; i < 5; ++i)
+    QSqlQuery test(database->db());
+    test.prepare("SELECT robot.robot_id, robot.battery_level, state.state_name, jobtype.jobtype_name FROM vpj.robot INNER JOIN vpj.state ON robot.state_id = state.state_id INNER JOIN vpj.jobtype ON robot.jobtype_id = jobtype.jobtype_id");
+    test.exec();
+    while (test.next())
     {
-        QSqlQuery query(database->db());
-        query.prepare("SELECT robot.battery_level, state.state_name, jobtype.jobtype_name FROM vpj.robot INNER JOIN vpj.state ON robot.state_id = state.state_id INNER JOIN vpj.jobtype ON robot.jobtype_id = jobtype.jobtype_id WHERE robot.robot_id = :robot_id;");
-        query.bindValue(":robot_id", i);
-        query.exec();
-        if (query.next())
+        int robotId = test.record().value(0).toInt();
+        int batteryLevel = test.record().value(1).toInt();
+        QString state = test.record().value(2).toString();
+        QString jobType = test.record().value(3).toString();
+
+        QSqlQuery query2(database->db());
+        query2.prepare("SELECT COUNT(DISTINCT workpiece_history.workpiece_id, station_place.station_id) FROM vpj.workpiece_history INNER JOIN vpj.station_place ON station_place.station_place_id = workpiece_history.station_place_id WHERE workpiece_history.workpiece_state_id = 3 AND workpiece_history.robot_id = :robot_id;");
+        query2.bindValue(":robot_id", robotId);
+        query2.exec();
+        query2.next();
+        QString workpieceCount = query2.record().value(0).toString();
+
+        switch (robotId)
         {
-            QSqlQuery query2(database->db());
-            query2.prepare("SELECT COUNT(DISTINCT workpiece_history.workpiece_id, station_place.station_id) FROM vpj.workpiece_history INNER JOIN vpj.station_place ON station_place.station_place_id = workpiece_history.station_place_id WHERE workpiece_history.workpiece_state_id = 3 AND workpiece_history.robot_id = :robot_id;");
-            query2.bindValue(":robot_id", i);
-            query2.exec();
-            query2.next();
-
-            QString stateName = query.record().value(1).toString();
-            if (i == 1) //Roboter 1
+        case 1:
+            ui->robot1_workpieces_lineEdit->setText(workpieceCount);
+            ui->robot1_state_lineEdit->setText(state);
+            if (state != "inaktiv")
             {
-                ui->robot1_workpieces_lineEdit->setText(query2.record().value(0).toString());
-
-                ui->robot1_state_lineEdit->setText(stateName);
-                if (stateName != "inaktiv")
-                {
-                    ui->robot1_progressBar->setValue(query.record().value(0).toInt());
-                    ui->robot1_jobtype_lineEdit->setText(query.record().value(2).toString());
-                }
-                else {ui->robot1_progressBar->setValue(0);}
+                ui->robot1_progressBar->setValue(batteryLevel);
+                ui->robot1_jobtype_lineEdit->setText(jobType);
             }
-            else if (i == 2) //Roboter 2
+            else
             {
-                ui->robot2_workpieces_lineEdit->setText(query2.record().value(0).toString());
-
-                ui->robot2_state_lineEdit->setText(stateName);
-                if (stateName != "inaktiv")
-                {
-                    ui->robot2_progressBar->setValue(query.record().value(0).toInt());
-                    ui->robot2_jobtype_lineEdit->setText(query.record().value(2).toString());
-                }
-                else {ui->robot2_progressBar->setValue(0);}
+                ui->robot1_progressBar->setValue(0);
             }
-            else if (i == 3) //Roboter 3
+            break;
+        case 2:
+            ui->robot2_workpieces_lineEdit->setText(workpieceCount);
+            ui->robot2_state_lineEdit->setText(state);
+            if (state != "inaktiv")
             {
-                ui->robot3_workpieces_lineEdit->setText(query2.record().value(0).toString());
-
-                ui->robot3_state_lineEdit->setText(stateName);
-                if (stateName != "inaktiv")
-                {
-                    ui->robot3_progressBar->setValue(query.record().value(0).toInt());
-                    ui->robot3_jobtype_lineEdit->setText(query.record().value(2).toString());
-                }
-                else {ui->robot3_progressBar->setValue(0);}
+                ui->robot2_progressBar->setValue(batteryLevel);
+                ui->robot2_jobtype_lineEdit->setText(jobType);
             }
-            else if (i == 4) //Roboter 4
+            else
             {
-                ui->robot4_workpieces_lineEdit->setText(query2.record().value(0).toString());
-
-                ui->robot4_state_lineEdit->setText(stateName);
-                if (stateName != "inaktiv")
-                {
-                    ui->robot4_progressBar->setValue(query.record().value(0).toInt());
-                    ui->robot4_jobtype_lineEdit->setText(query.record().value(2).toString());
-                }
-                else {ui->robot4_progressBar->setValue(0);}
+                ui->robot2_progressBar->setValue(0);
             }
+            break;
+        case 3:
+            ui->robot3_workpieces_lineEdit->setText(workpieceCount);
+            ui->robot3_state_lineEdit->setText(state);
+            if (state != "inaktiv")
+            {
+                ui->robot3_progressBar->setValue(batteryLevel);
+                ui->robot3_jobtype_lineEdit->setText(jobType);
+            }
+            else
+            {
+                ui->robot3_progressBar->setValue(0);
+            }
+            break;
+        case 4:
+            ui->robot4_workpieces_lineEdit->setText(workpieceCount);
+            ui->robot4_state_lineEdit->setText(state);
+            if (state != "inaktiv")
+            {
+                ui->robot4_progressBar->setValue(batteryLevel);
+                ui->robot4_jobtype_lineEdit->setText(jobType);
+            }
+            else
+            {
+                ui->robot4_progressBar->setValue(0);
+            }
+            break;
+        default:
+            break;
         }
     }
-    update();
+    //update();
 }
 
 //Fehler
@@ -749,7 +831,42 @@ void MainWindow::fault()
     }
 }
 
-void MainWindow::on_fault_pushButton_clicked()
+void MainWindow::showStationPanel(int stationId)
+{
+    if (!ui->groupBox->isVisible())
+    {
+        ui->groupBox->setVisible(true);
+        selectedStation = stationId;
+        stationUpdateTimer->start(100);
+    }
+    else
+    {
+        ui->groupBox->setVisible(false);
+        selectedStation = 0;
+        stationUpdateTimer->stop();
+    }
+}
+
+void MainWindow::setLabelColorFromState(QLabel *label, int state)
+{
+    switch (state)
+    {
+    case 0:
+        label->setStyleSheet("background-color: green;");   //State: free
+        break;
+    case 1:
+        label->setStyleSheet("background-color: red;");     //State: assigned
+        break;
+    case 2:
+        label->setStyleSheet("background-color: blue;");    //State: reserved
+        break;
+    default:
+        label->setStyleSheet("background-color: white;");   //the same as invisible
+        break;
+    }
+}
+
+void MainWindow::faultPushButtonClicked()
 {
     QSqlQuery query(database->db());
     query.prepare("SELECT robot_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id = 25 OR station_place_id = 26);");
@@ -787,6 +904,7 @@ void MainWindow::on_fault_pushButton_clicked()
             query.exec();
             if (query.next())
             {
+                QSqlQuery query2(database->db());
                 query2.prepare("UPDATE vpj.robot SET state_id = 0 WHERE robot_id = :robot_id;"); //Roboter frei geben
                 query2.bindValue(":robot_id", query2.record().value(0).toString());
                 query2.exec();
@@ -795,4 +913,3 @@ void MainWindow::on_fault_pushButton_clicked()
         }
     }
 }
-

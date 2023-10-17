@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QStandardItemModel>
 #include <QTimer>
+#include <QLabel>
 #include <datenbank.h>
 
 QT_BEGIN_NAMESPACE
@@ -20,20 +21,17 @@ public:
 
 private slots:
     void updateTabs();
+    void updateStationStatus();
 
-    void on_pushButton_clicked();
+    void pushButtonClicked();
+    void WorkpiecePushButtonClicked();
+    void pushButton3Clicked();
+    void faultPushButtonClicked();
 
-    void on_comboBox_2_currentIndexChanged();
-
-    void on_workpiece_pushButton_clicked();
-
-    void on_comboBox_5_currentIndexChanged();
-
-    void on_comboBox_6_currentIndexChanged();
-
-    void on_pushButton_3_clicked();
-
-    void on_production_order_name_comboBox_currentIndexChanged(int index);
+    void comboBox2CurrentIndexChanged(int index);
+    void comboBox5CurrentIndexChanged(int index);
+    void comboBox6CurrentIndexChanged(int index);
+    void productionOrderNameComboBoxCurrentIndexChanged(int index);
     int workpiece_table(int index);
 
     void on_station_comboBox_currentIndexChanged();
@@ -42,13 +40,16 @@ private slots:
 
     void fault();
 
-    void on_fault_pushButton_clicked();
+    void showStationPanel(int stationId);
 
 private:
     Ui::MainWindow *ui;
     Datenbank *database;
     QStandardItemModel *model;
     QTimer* updateTimer;
+    QTimer* stationUpdateTimer;
+    int selectedStation = 0;
     void updateRobotTab();
+    void setLabelColorFromState(QLabel *label, int state);
 };
 #endif // MAINWINDOW_H
