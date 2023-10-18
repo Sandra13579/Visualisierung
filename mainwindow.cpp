@@ -831,6 +831,89 @@ void MainWindow::fault()
     }
 }
 
+void MainWindow::faultPushButtonClicked()
+{
+    QSqlQuery query(database->db());
+    QSqlQuery query2(database->db());
+    QSqlQuery query3(database->db());
+    QSqlQuery query4(database->db());
+    QSqlQuery query5(database->db());
+    query.prepare("SELECT robot_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id = 25 OR station_place_id = 26);");
+    query.exec();
+    if (query.next()) //der Roboter hat sich nicht richtig mit der Ladestation verbunden
+    {
+        QSqlQuery query2(database->db());
+        query2.prepare("UPDATE vpj.robot SET state_id = 8 WHERE robot_id = :robot_id;");
+        query2.bindValue(":robot_id", query.record().value(0).toString());
+        query2.exec();
+    }
+    else
+    {
+        query.prepare("SELECT station_id FROM vpj.station WHERE state_id = 4;");
+        query.exec();
+        if (query.next()) // es wurde eine falsche RFID gelesen
+        {
+            query2.prepare("SELECT robot_id FROM vpj.robot r INNER JOIN vpj.station_place sp ON r.station_place_id = sp.station_place_id WHERE sp.station_id = :station_id;");
+            query2.bindValue(":station_id", query.record().value(0).toString());
+            query2.exec();
+            query2.next();
+            query3.prepare("UPDATE vpj.robot SET state_id = 0 WHERE robot_id = :robot_id;"); //Roboter frei geben
+            query3.bindValue(":robot_id", query2.record().value(0).toString());
+            query3.exec();
+            qDebug() << "fehler" << "robot_id" << query2.record().value(0).toString() << "station_id" << query.record().value(0).toString();
+
+            //Zielstationsplatz freigeben
+            query3.prepare("SELECT destination_station_place_id FROM vpj.workpiece wp INNER JOIN vpj.robot r ON r.robot_id = wp.robot_id WHERE r.robot_id = :robot_id;");
+            query3.bindValue(":robot_id", query2.record().value(0).toString());
+            query3.exec();
+            query3.next();
+            query4.prepare("UPDATE vpj.station_place SET state_id = 0 WHERE station_place_id = :station_place_id;"); //Roboter frei geben
+            query4.bindValue(":station_place_id", query3.record().value(0).toString());
+            query4.exec();
+            qDebug() << "fehler" << "station_place_id" << query3.record().value(0).toString();
+
+            //Start und Zielstation vorbereiten für Freigabe
+            query4.prepare("SELECT station_id FROM vpj.station_place WHERE station_place_id IN (SELECT start_station_place_id FROM vpj.workpiece wp INNER JOIN vpj.robot r ON r.robot_id = wp.robot_id WHERE r.robot_id = :robot_id) OR station_place_id = :destination_station_place_id;");
+            query4.bindValue(":robot_id", query2.record().value(0).toString());
+            query4.bindValue(":destination_station_place_id", query3.record().value(0).toString());
+            query4.exec();
+            while (query4.next())
+            {
+                qDebug() << "fehler" << "station_id" << query3.record().value(0).toString();
+                query5.prepare("UPDATE vpj.station SET state_id = 1 WHERE station_id = :station_id");
+                query5.bindValue(":station_id", query4.record().value(0).toString());
+                query5.exec();
+            }
+        }
+        else // ein Werkstück ist verloren gegangen
+        {
+            query.prepare("SELECT robot_id, station_place_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id != 25 OR station_place_id != 26);");
+            query.exec();
+            if (query.next())
+            {
+                QSqlQuery query2(database->db());
+                query2.prepare("UPDATE vpj.robot SET state_id = 0 WHERE robot_id = :robot_id;"); //Roboter frei geben
+                query2.bindValue(":robot_id", query2.record().value(0).toString());
+                query2.exec();
+            }
+
+            //Start und Zielstation vorbereiten für Freigabe
+            query4.prepare("SELECT station_id FROM vpj.station_place WHERE station_place_id IN (SELECT start_station_place_id FROM vpj.workpiece wp INNER JOIN vpj.robot r ON r.robot_id = wp.robot_id WHERE r.robot_id = :robot_id) OR station_place_id IN (SELECT destination_station_place_id FROM vpj.workpiece wp INNER JOIN vpj.robot r ON r.robot_id = wp.robot_id WHERE r.robot_id = :robot_id)");
+            query4.bindValue(":robot_id", query2.record().value(0).toString());
+            query4.exec();
+            while (query4.next())
+            {
+                qDebug() << "fehler" << "station_id" << query3.record().value(0).toString();
+                query5.prepare("UPDATE vpj.station SET state_id = 1 WHERE station_id = :station_id");
+                query5.bindValue(":station_id", query4.record().value(0).toString());
+                query5.exec();
+            }
+            //stationsplätze und station??????
+        }
+    }
+}
+
+
 void MainWindow::showStationPanel(int stationId)
 {
     if (!ui->groupBox->isVisible())
@@ -863,53 +946,5 @@ void MainWindow::setLabelColorFromState(QLabel *label, int state)
     default:
         label->setStyleSheet("background-color: white;");   //the same as invisible
         break;
-    }
-}
-
-void MainWindow::faultPushButtonClicked()
-{
-    QSqlQuery query(database->db());
-    query.prepare("SELECT robot_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id = 25 OR station_place_id = 26);");
-    query.exec();
-    if (query.next())
-    {
-        QSqlQuery query2(database->db());
-        query2.prepare("UPDATE vpj.robot SET state_id = 8 WHERE robot_id = :robot_id;");
-        query2.bindValue(":robot_id", query.record().value(0).toString());
-        query2.exec();
-    }
-    else
-    {
-        query.prepare("SELECT station_id FROM vpj.station WHERE state_id = 4;");
-        query.exec();
-        if (query.next())
-        {
-            QSqlQuery query2(database->db());
-            QSqlQuery query3(database->db());
-            query2.prepare("UPDATE vpj.station SET state_id = 1 WHERE station_id = :station_id;"); //Station belegen
-            query2.bindValue(":station_id", query.record().value(0).toString());
-            query2.exec();
-            query2.prepare("SELECT robot_id FROM vpj.robot r INNER JOIN vpj.station_place sp ON r.station_place_id = sp.station_place_id WHERE sp.station_id = :station_id;");
-            query2.bindValue(":station_id", query.record().value(0).toString());
-            query2.exec();
-            query2.next();
-            query3.prepare("UPDATE vpj.robot SET state_id = 0 WHERE robot_id = :robot_id;"); //Roboter frei geben
-            query3.bindValue(":robot_id", query2.record().value(0).toString());
-            query3.exec();
-            //stationsplätze?????
-        }
-        else
-        {
-            query.prepare("SELECT robot_id, station_place_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id != 25 OR station_place_id != 26);");
-            query.exec();
-            if (query.next())
-            {
-                QSqlQuery query2(database->db());
-                query2.prepare("UPDATE vpj.robot SET state_id = 0 WHERE robot_id = :robot_id;"); //Roboter frei geben
-                query2.bindValue(":robot_id", query2.record().value(0).toString());
-                query2.exec();
-            }
-            //stationsplätze??????
-        }
     }
 }
