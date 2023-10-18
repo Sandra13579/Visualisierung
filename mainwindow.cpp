@@ -112,12 +112,21 @@ void MainWindow::updateStationStatus()
         {
             states.append(query.record().value(1).toInt());
         }
-        setLabelColorFromState(ui->label_stat11, states[0]);
-        setLabelColorFromState(ui->label_stat12, -1);
-        setLabelColorFromState(ui->label_stat13, -1);
-        setLabelColorFromState(ui->label_stat21, states[1]);
-        setLabelColorFromState(ui->label_stat22, -1);
-        setLabelColorFromState(ui->label_stat23, -1);
+        if (states.count() == 2)
+        {
+            setLabelColorFromState(ui->label_stat11, states[0]);
+            ui->label_stat11->setText("1");
+            setLabelColorFromState(ui->label_stat12, -1);
+            ui->label_stat12->clear();
+            setLabelColorFromState(ui->label_stat13, -1);
+            ui->label_stat13->clear();
+            setLabelColorFromState(ui->label_stat21, states[1]);
+            ui->label_stat21->setText("1");
+            setLabelColorFromState(ui->label_stat22, -1);
+            ui->label_stat22->clear();
+            setLabelColorFromState(ui->label_stat23, -1);
+            ui->label_stat23->clear();
+        }
         break;
     }
     default:
@@ -916,9 +925,26 @@ void MainWindow::faultPushButtonClicked()
 
 void MainWindow::showStationPanel(int stationId)
 {
-    if (!ui->groupBox->isVisible())
+    if (!ui->groupBox->isVisible() || stationId != selectedStation)
     {
         ui->groupBox->setVisible(true);
+
+        if (stationId == 9)     //charging station
+        {
+            ui->groupBox->move(650, 300);
+            ui->groupBox->resize(104, 86);
+            ui->groupBox->setTitle("Ladestation");
+            ui->label_stat1_cap->clear();
+            ui->label_stat2_cap->clear();
+        }
+        else    //working station
+        {
+            ui->groupBox->move(650, 130);
+            ui->groupBox->resize(104, 256);
+            ui->groupBox->setTitle("Station");
+            ui->label_stat1_cap->setText(QString::number(stationId));
+            ui->label_stat2_cap->setText(QString::number(stationId + 1));
+        }
         selectedStation = stationId;
         stationUpdateTimer->start(100);
     }
@@ -935,13 +961,16 @@ void MainWindow::setLabelColorFromState(QLabel *label, int state)
     switch (state)
     {
     case 0:
-        label->setStyleSheet("background-color: green;");   //State: free
+        label->setStyleSheet("background-color: green; border-radius: 10px;");      //State: free
         break;
     case 1:
-        label->setStyleSheet("background-color: red;");     //State: assigned
+        label->setStyleSheet("background-color: orange; border-radius: 10px;");     //State: assigned
         break;
     case 2:
-        label->setStyleSheet("background-color: blue;");    //State: reserved
+        label->setStyleSheet("background-color: yellow; border-radius: 10px;");     //State: reserved
+        break;
+    case 3:
+        label->setStyleSheet("background-color: grey; border-radius: 10px;");       //State: inactive
         break;
     default:
         label->setStyleSheet("background-color: white;");   //the same as invisible
