@@ -188,10 +188,15 @@ border-color: rgb(0, 0, 0);</string>
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true"/>
+       <string notr="true">QGroupBox { 
+	background: transparent;
+	margin-top: 1ex;
+	border: 2px solid gray; 
+	border-radius: 5px; 
+ }</string>
       </property>
       <property name="title">
-       <string>text</string>
+       <string/>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -348,6 +353,9 @@ border-radius: 10px;</string>
          <bold>true</bold>
         </font>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background: transparent;</string>
+       </property>
        <property name="text">
         <string>1</string>
        </property>
@@ -372,6 +380,9 @@ border-radius: 10px;</string>
          <strikeout>false</strikeout>
          <kerning>true</kerning>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background: transparent;</string>
        </property>
        <property name="text">
         <string>1</string>
@@ -1077,7 +1088,7 @@ border-radius: 10px;</string>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_3">
      <attribute name="title">

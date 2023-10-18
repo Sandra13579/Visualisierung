@@ -121,7 +121,7 @@ void MainWindow::updateStationStatus()
             setLabelColorFromState(ui->label_stat13, -1);
             ui->label_stat13->clear();
             setLabelColorFromState(ui->label_stat21, states[1]);
-            ui->label_stat21->setText("1");
+            ui->label_stat21->setText("2");
             setLabelColorFromState(ui->label_stat22, -1);
             ui->label_stat22->clear();
             setLabelColorFromState(ui->label_stat23, -1);
@@ -142,11 +142,17 @@ void MainWindow::updateStationStatus()
             states.append(query.record().value(1).toInt());
         }
         setLabelColorFromState(ui->label_stat11, states[0]);
+        ui->label_stat11->setText("1");
         setLabelColorFromState(ui->label_stat12, states[1]);
+        ui->label_stat12->setText("2");
         setLabelColorFromState(ui->label_stat13, states[2]);
+        ui->label_stat13->setText("3");
         setLabelColorFromState(ui->label_stat21, states[3]);
+        ui->label_stat21->setText("1");
         setLabelColorFromState(ui->label_stat22, states[4]);
+        ui->label_stat22->setText("2");
         setLabelColorFromState(ui->label_stat23, states[5]);
+        ui->label_stat23->setText("3");
         break;
     }
     }
@@ -922,7 +928,6 @@ void MainWindow::faultPushButtonClicked()
     }
 }
 
-
 void MainWindow::showStationPanel(int stationId)
 {
     if (!ui->groupBox->isVisible() || stationId != selectedStation)
@@ -933,17 +938,17 @@ void MainWindow::showStationPanel(int stationId)
         {
             ui->groupBox->move(650, 300);
             ui->groupBox->resize(104, 86);
-            ui->groupBox->setTitle("Ladestation");
             ui->label_stat1_cap->clear();
-            ui->label_stat2_cap->clear();
+            ui->label_stat2_cap->setText(QString::number(stationId));
+            ui->label_stat2_cap->move(ui->groupBox->size().width() / 2 - 10, 20);
         }
         else    //working station
         {
             ui->groupBox->move(650, 130);
             ui->groupBox->resize(104, 256);
-            ui->groupBox->setTitle("Station");
             ui->label_stat1_cap->setText(QString::number(stationId));
             ui->label_stat2_cap->setText(QString::number(stationId + 1));
+            ui->label_stat2_cap->move(20, 20);
         }
         selectedStation = stationId;
         stationUpdateTimer->start(100);
@@ -960,20 +965,29 @@ void MainWindow::setLabelColorFromState(QLabel *label, int state)
 {
     switch (state)
     {
-    case 0:
-        label->setStyleSheet("background-color: green; border-radius: 10px;");      //State: free
+    case 0: //State: available
+        label->setStyleSheet("background-color: green; border-radius: 10px; color: white;");
+        label->setToolTip("Available");
         break;
-    case 1:
-        label->setStyleSheet("background-color: orange; border-radius: 10px;");     //State: assigned
+    case 1: //State: assigned
+        label->setStyleSheet("background-color: orange; border-radius: 10px;");
+        label->setToolTip("Assigned");
         break;
-    case 2:
-        label->setStyleSheet("background-color: yellow; border-radius: 10px;");     //State: reserved
+    case 2: //State: reserved
+        label->setStyleSheet("background-color: yellow; border-radius: 10px;");
+        label->setToolTip("Reserved");
         break;
-    case 3:
-        label->setStyleSheet("background-color: grey; border-radius: 10px;");       //State: inactive
+    case 3: //State: inactive
+        label->setStyleSheet("background-color: grey; border-radius: 10px; color: white;");
+        label->setToolTip("Inactive");
         break;
-    default:
-        label->setStyleSheet("background-color: white;");   //the same as invisible
+    case 4: //State: fault
+        label->setStyleSheet("background-color: red; border-radius: 10px; color: white;");
+        label->setToolTip("Fault");
+        break;
+    default: //default state make the label invisible
+        label->setStyleSheet("background-color: white;");
+        label->setToolTip("");
         break;
     }
 }
