@@ -967,23 +967,23 @@ void MainWindow::setLabelColorFromState(QLabel *label, int state)
     {
     case 0: //State: available
         label->setStyleSheet("background-color: green; border-radius: 10px; color: white;");
-        label->setToolTip("Available");
+        label->setToolTip("Frei");
         break;
     case 1: //State: assigned
         label->setStyleSheet("background-color: orange; border-radius: 10px;");
-        label->setToolTip("Assigned");
+        label->setToolTip("Belegt");
         break;
     case 2: //State: reserved
         label->setStyleSheet("background-color: yellow; border-radius: 10px;");
-        label->setToolTip("Reserved");
+        label->setToolTip("Reserviert");
         break;
     case 3: //State: inactive
         label->setStyleSheet("background-color: grey; border-radius: 10px; color: white;");
-        label->setToolTip("Inactive");
+        label->setToolTip("Inaktiv");
         break;
     case 4: //State: fault
         label->setStyleSheet("background-color: red; border-radius: 10px; color: white;");
-        label->setToolTip("Fault");
+        label->setToolTip("Fehler");
         break;
     default: //default state make the label invisible
         label->setStyleSheet("background-color: white;");
