@@ -671,11 +671,19 @@ void MainWindow::on_station_comboBox_currentIndexChanged()
     int placeId = 2;
     ui->label_14->setText("Platz 2");
     ui->label_15->setText("Platz 3");
+    ui->label_18->setVisible(true);
+    ui->label_19->setVisible(true);
+    ui->station_history_lineEdit_2->setVisible(true);
+    ui->station_history_lineEdit_3->setVisible(true);
     if (stationId == 9) //Ladestationen
     {
         placeId = 1;
         ui->label_14->setText("Platz 1");
         ui->label_15->setText("Platz 2");
+        ui->label_18->setVisible(false);
+        ui->label_19->setVisible(false);
+        ui->station_history_lineEdit_2->setVisible(false);
+        ui->station_history_lineEdit_3->setVisible(false);
     }
     QSqlQuery query(database->db());
     //Status
@@ -876,6 +884,11 @@ void MainWindow::faultPushButtonClicked()
             query3.exec();
             qDebug() << "fehler" << "robot_id" << query2.record().value(0).toString() << "station_id" << query.record().value(0).toString();
 
+            //Transportauftrag zurücknehmen
+            query4.prepare("UPDATE vpj.workpiece SET workpiece_state_id = 1, robot_id = NULL, step_id = step_id -1 WHERE robot_id = :robot_id;");
+            query4.bindValue(":robot_id", query2.record().value(0).toString());
+            query4.exec();
+
             //Zielstationsplatz freigeben
             query3.prepare("SELECT destination_station_place_id FROM vpj.workpiece wp INNER JOIN vpj.robot r ON r.robot_id = wp.robot_id WHERE r.robot_id = :robot_id;");
             query3.bindValue(":robot_id", query2.record().value(0).toString());
@@ -932,6 +945,14 @@ void MainWindow::faultPushButtonClicked()
                         int destination_station_id = query3.record().value(0).toInt();
                         query4.prepare("UPDATE vpj.station SET state_id = 0 WHERE station_id = :station_id;");
                         query4.bindValue(":station_id", destination_station_id);
+                        query4.exec();
+                        query3.prepare("SELECT station_id FROM vpj.station_place WHERE station_place_id = :station_place_id;");
+                        query3.bindValue(":station_place_id", start_station_place_id);
+                        query3.exec();
+                        query3.next();
+                        int start_station_id = query3.record().value(0).toInt();
+                        query4.prepare("UPDATE vpj.station SET state_id = 1 WHERE station_id = :station_id;");
+                        query4.bindValue(":station_id", start_station_id);
                         query4.exec();
                     }
                     else
