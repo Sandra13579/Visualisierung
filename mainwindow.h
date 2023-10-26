@@ -23,6 +23,8 @@ public:
 private slots:
     void updateTabs();
     void updateStationStatus();
+    void updateRobotStatus();
+    void updateRobotPosition();
 
     void pushButtonClicked();
     void workpiecePushButtonClicked();
@@ -42,24 +44,20 @@ private slots:
     void fault();
 
     void showStationPanel(int stationId);
-    void updateRobotPosition();
+    void showRobotPanel(int robotId);
 
 private:
     Ui::MainWindow *ui;
     Datenbank *database;
     QStandardItemModel *model;
-    QTimer* updateTimer;
+    QTimer* tabUpdateTimer;
     QTimer* stationUpdateTimer;
+    QTimer* robotUpdateTimer;
+    QTimer* robotsPositionsUpdateTimer;
     int selectedStation = 0;
+    int selectedRobot = 0;
     void updateRobotTab();
     void setLabelColorFromState(QLabel *label, int state);
-
-    QTimer* robotsPositionsUpdateTimer;
-    int robotX[5]; //Element 0 wird nicht genutzt
-    int robotY[5];
-    int robotState[5];
-    int robotBattery[5];
-
     void setRobotPosition(QPushButton *button, int state, int x, int y, int batteryLevel);
 };
 #endif // MAINWINDOW_H

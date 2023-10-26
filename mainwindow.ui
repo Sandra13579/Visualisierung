@@ -160,17 +160,164 @@ border-color: rgb(0, 0, 0);</string>
 border-color: rgb(0, 0, 0);</string>
       </property>
      </widget>
+     <widget class="QLabel" name="cautionTape_1">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>170</y>
+        <width>480</width>
+        <height>10</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_horizontal.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_2">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>0</y>
+        <width>10</width>
+        <height>170</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_3">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>0</y>
+        <width>10</width>
+        <height>170</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_4">
+      <property name="geometry">
+       <rect>
+        <x>690</x>
+        <y>0</y>
+        <width>10</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_5">
+      <property name="geometry">
+       <rect>
+        <x>586</x>
+        <y>0</y>
+        <width>10</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_6">
+      <property name="geometry">
+       <rect>
+        <x>586</x>
+        <y>70</y>
+        <width>114</width>
+        <height>10</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_horizontal.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_robot">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>320</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 170, 0);
+border-radius: 15px;
+border: 1px solid gray; </string>
+      </property>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_robot_2">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>320</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 170, 0);
+border-radius: 15px;
+border: 1px solid gray; </string>
+      </property>
+      <property name="text">
+       <string>2</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_robot_3">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>320</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 170, 0);
+border-radius: 15px;
+border: 1px solid gray; </string>
+      </property>
+      <property name="text">
+       <string>3</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_robot_4">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>320</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 170, 0);
+border-radius: 15px;
+border: 1px solid gray; </string>
+      </property>
+      <property name="text">
+       <string>4</string>
+      </property>
+     </widget>
      <widget class="QGroupBox" name="groupBox">
       <property name="geometry">
        <rect>
-        <x>650</x>
+        <x>660</x>
         <y>130</y>
         <width>104</width>
         <height>256</height>
        </rect>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
       </property>
       <property name="styleSheet">
        <string notr="true">QGroupBox { 
@@ -376,156 +523,6 @@ border-radius: 10px;</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-     </widget>
-     <widget class="QLabel" name="cautionTape_1">
-      <property name="geometry">
-       <rect>
-        <x>50</x>
-        <y>170</y>
-        <width>480</width>
-        <height>10</height>
-       </rect>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="ressources.qrc">:/images/caution_tape_horizontal.jpg</pixmap>
-      </property>
-     </widget>
-     <widget class="QLabel" name="cautionTape_2">
-      <property name="geometry">
-       <rect>
-        <x>520</x>
-        <y>0</y>
-        <width>10</width>
-        <height>170</height>
-       </rect>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
-      </property>
-     </widget>
-     <widget class="QLabel" name="cautionTape_3">
-      <property name="geometry">
-       <rect>
-        <x>50</x>
-        <y>0</y>
-        <width>10</width>
-        <height>170</height>
-       </rect>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
-      </property>
-     </widget>
-     <widget class="QLabel" name="cautionTape_4">
-      <property name="geometry">
-       <rect>
-        <x>690</x>
-        <y>0</y>
-        <width>10</width>
-        <height>70</height>
-       </rect>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
-      </property>
-     </widget>
-     <widget class="QLabel" name="cautionTape_5">
-      <property name="geometry">
-       <rect>
-        <x>586</x>
-        <y>0</y>
-        <width>10</width>
-        <height>70</height>
-       </rect>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
-      </property>
-     </widget>
-     <widget class="QLabel" name="cautionTape_6">
-      <property name="geometry">
-       <rect>
-        <x>586</x>
-        <y>70</y>
-        <width>114</width>
-        <height>10</height>
-       </rect>
-      </property>
-      <property name="pixmap">
-       <pixmap resource="ressources.qrc">:/images/caution_tape_horizontal.jpg</pixmap>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_robot">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>320</y>
-        <width>30</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 170, 0);
-border-radius: 15px;
-border: 1px solid gray; </string>
-      </property>
-      <property name="text">
-       <string>1</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_robot_2">
-      <property name="geometry">
-       <rect>
-        <x>100</x>
-        <y>320</y>
-        <width>30</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 170, 0);
-border-radius: 15px;
-border: 1px solid gray; </string>
-      </property>
-      <property name="text">
-       <string>2</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_robot_3">
-      <property name="geometry">
-       <rect>
-        <x>160</x>
-        <y>320</y>
-        <width>30</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 170, 0);
-border-radius: 15px;
-border: 1px solid gray; </string>
-      </property>
-      <property name="text">
-       <string>3</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_robot_4">
-      <property name="geometry">
-       <rect>
-        <x>220</x>
-        <y>320</y>
-        <width>30</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: rgb(255, 170, 0);
-border-radius: 15px;
-border: 1px solid gray; </string>
-      </property>
-      <property name="text">
-       <string>4</string>
-      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
@@ -1486,6 +1483,113 @@ border: 1px solid gray; </string>
     <property name="text">
      <string>Fehler quittieren</string>
     </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>280</y>
+      <width>120</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QGroupBox { 
+	background: rgba(255, 255, 255, 150);
+	margin-top: 1ex;
+	border: 2px solid gray; 
+	border-radius: 5px; 
+ }</string>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <widget class="QLabel" name="label_23">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>20</y>
+       <width>101</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <bold>true</bold>
+       <underline>true</underline>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: transparent;</string>
+     </property>
+     <property name="text">
+      <string>Roboter 1:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_24">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>40</y>
+       <width>101</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: transparent;</string>
+     </property>
+     <property name="text">
+      <string>Akkustand:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_25">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>101</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: transparent;</string>
+     </property>
+     <property name="text">
+      <string>Status:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_26">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>101</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: transparent;</string>
+     </property>
+     <property name="text">
+      <string>Auftrag:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_27">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>100</y>
+       <width>101</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background: transparent;</string>
+     </property>
+     <property name="text">
+      <string>Werkstück RFID:</string>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>

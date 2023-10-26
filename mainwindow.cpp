@@ -64,26 +64,43 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 //Station labels
-    connect(ui->pushButton_2, &QPushButton::clicked, this, [=]() { showStationPanel(7); });
-    connect(ui->pushButton_4, &QPushButton::clicked, this, [=]() { showStationPanel(5); });
-    connect(ui->pushButton_5, &QPushButton::clicked, this, [=]() { showStationPanel(3); });
-    connect(ui->pushButton_6, &QPushButton::clicked, this, [=]() { showStationPanel(1); });
-    connect(ui->pushButton_7, &QPushButton::clicked, this, [=]() { showStationPanel(9); });
+    connect(ui->pushButton_2, &QPushButton::clicked, this, [=] () { showStationPanel(7); });
+    connect(ui->pushButton_4, &QPushButton::clicked, this, [=] () { showStationPanel(5); });
+    connect(ui->pushButton_5, &QPushButton::clicked, this, [=] () { showStationPanel(3); });
+    connect(ui->pushButton_6, &QPushButton::clicked, this, [=] () { showStationPanel(1); });
+    connect(ui->pushButton_7, &QPushButton::clicked, this, [=] () { showStationPanel(9); });
 
     ui->groupBox->setVisible(false);
 
     stationUpdateTimer = new QTimer(this);
-    connect(stationUpdateTimer, &QTimer::timeout, this, &MainWindow::updateStationStatus);    
+    connect(stationUpdateTimer, &QTimer::timeout, this, &MainWindow::updateStationStatus);
+
+//Robot labels
+    connect(ui->pushButton_robot, &QPushButton::clicked, this, [=] () { showRobotPanel(1); });
+    connect(ui->pushButton_robot_2, &QPushButton::clicked, this, [=] () { showRobotPanel(2); });
+    connect(ui->pushButton_robot_3, &QPushButton::clicked, this, [=] () { showRobotPanel(3); });
+    connect(ui->pushButton_robot_4, &QPushButton::clicked, this, [=] () { showRobotPanel(4); });
+
+    ui->groupBox_2->setVisible(false);
+
+    robotUpdateTimer = new QTimer(this);
+    connect(robotUpdateTimer, &QTimer::timeout, this, &MainWindow::updateRobotStatus);
 
 //Tab Aktualisierung
-    updateTimer = new QTimer(this);
-    connect(updateTimer, &QTimer::timeout, this, &MainWindow::updateTabs);
-    updateTimer->start(1000);
+    tabUpdateTimer = new QTimer(this);
+    connect(tabUpdateTimer, &QTimer::timeout, this, &MainWindow::updateTabs);
+    tabUpdateTimer->start(1000);
 
 //Roboter Positionen Aktualisierung
     robotsPositionsUpdateTimer = new QTimer(this);
     connect(robotsPositionsUpdateTimer, &QTimer::timeout, this, &MainWindow::updateRobotPosition);
     robotsPositionsUpdateTimer->start(100);
+}
+
+MainWindow::~MainWindow()
+{
+    database->Disconnect();
+    delete ui;
 }
 
 void MainWindow::updateTabs()
@@ -157,10 +174,36 @@ void MainWindow::updateStationStatus()
     }
 }
 
-MainWindow::~MainWindow()
+void MainWindow::updateRobotStatus()
 {
-    database->Disconnect();
-    delete ui;
+    QSqlQuery query(database->db());
+    //query.prepare("SELECT state_id, battery_level FROM vpj.robot WHERE robot_id = :robot_id");
+    query.prepare("SELECT robot.battery_level, state.state_name, jobtype.jobtype_name FROM vpj.robot INNER JOIN vpj.state ON robot.state_id = state.state_id INNER JOIN vpj.jobtype ON robot.jobtype_id = jobtype.jobtype_id WHERE robot.robot_id = :robot_id");
+    query.bindValue(":robot_id", selectedRobot);
+    query.exec();
+    if (query.next())
+    {
+        int batteryLevel = query.record().value(0).toInt();
+        QString state = query.record().value(1).toString();
+        QString jobType = query.record().value(2).toString();
+        ui->label_23->setText("Roboter " + QString::number(selectedRobot) + ":");
+        ui->label_24->setText("Akkustand: " + QString::number(batteryLevel) + "%");
+        ui->label_25->setText("Status: " + state);
+        ui->label_26->setText("Auftrag: " + jobType);
+    }
+
+    query.prepare("SELECT rfid FROM vpj.workpiece WHERE robot_id = :robot_id");
+    query.bindValue(":robot_id", selectedRobot);
+    query.exec();
+    if (query.next())
+    {
+        int rfid = query.record().value(0).toInt();
+        ui->label_27->setText("Werkstück RFID: " + QString::number(rfid));
+    }
+    else
+    {
+        ui->label_27->setText("Werkstück RFID: -");
+    }
 }
 
 //Auftragsverwaltung
@@ -1023,6 +1066,22 @@ void MainWindow::showStationPanel(int stationId)
         ui->groupBox->setVisible(false);
         selectedStation = 0;
         stationUpdateTimer->stop();
+    }
+}
+
+void MainWindow::showRobotPanel(int robotId)
+{
+    if (!ui->groupBox_2->isVisible() || robotId != selectedRobot)
+    {
+        ui->groupBox_2->setVisible(true);
+        selectedRobot = robotId;
+        robotUpdateTimer->start(100);
+    }
+    else
+    {
+        ui->groupBox_2->setVisible(false);
+        selectedRobot = 0;
+        robotUpdateTimer->stop();
     }
 }
 
