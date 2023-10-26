@@ -16,7 +16,7 @@
    </font>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Visualisierung</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
@@ -32,7 +32,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <property name="styleSheet">
@@ -41,32 +41,29 @@
      <attribute name="title">
       <string>Visualisierung</string>
      </attribute>
-     <widget class="Paint" name="textBrowser" native="true">
+     <widget class="QTextBrowser" name="textBrowser">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-1</y>
         <width>800</width>
-        <height>400</height>
+        <height>402</height>
        </rect>
       </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
       <property name="styleSheet">
-       <string notr="true"/>
+       <string notr="true">background-image: url(:/images/texture.jpg);</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_2">
       <property name="geometry">
        <rect>
-        <x>290</x>
-        <y>40</y>
-        <width>21</width>
-        <height>71</height>
+        <x>105</x>
+        <y>97</y>
+        <width>13</width>
+        <height>32</height>
        </rect>
       </property>
       <property name="autoFillBackground">
@@ -76,9 +73,6 @@
        <string notr="true">background-color: rgb(160, 160, 164);
 border-color: rgb(0, 0, 0);</string>
       </property>
-      <property name="text">
-       <string/>
-      </property>
       <property name="flat">
        <bool>false</bool>
       </property>
@@ -86,10 +80,10 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QPushButton" name="pushButton_4">
       <property name="geometry">
        <rect>
-        <x>380</x>
-        <y>40</y>
-        <width>21</width>
-        <height>71</height>
+        <x>225</x>
+        <y>97</y>
+        <width>13</width>
+        <height>32</height>
        </rect>
       </property>
       <property name="autoFillBackground">
@@ -109,10 +103,10 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QPushButton" name="pushButton_5">
       <property name="geometry">
        <rect>
-        <x>470</x>
-        <y>40</y>
-        <width>21</width>
-        <height>71</height>
+        <x>345</x>
+        <y>97</y>
+        <width>13</width>
+        <height>32</height>
        </rect>
       </property>
       <property name="autoFillBackground">
@@ -132,10 +126,10 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QPushButton" name="pushButton_6">
       <property name="geometry">
        <rect>
-        <x>560</x>
-        <y>40</y>
-        <width>21</width>
-        <height>71</height>
+        <x>465</x>
+        <y>97</y>
+        <width>13</width>
+        <height>32</height>
        </rect>
       </property>
       <property name="autoFillBackground">
@@ -155,24 +149,15 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QPushButton" name="pushButton_7">
       <property name="geometry">
        <rect>
-        <x>640</x>
-        <y>10</y>
-        <width>121</width>
-        <height>71</height>
+        <x>613</x>
+        <y>0</y>
+        <width>60</width>
+        <height>28</height>
        </rect>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(160, 160, 164);
 border-color: rgb(0, 0, 0);</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="flat">
-       <bool>false</bool>
       </property>
      </widget>
      <widget class="QGroupBox" name="groupBox">
@@ -189,7 +174,7 @@ border-color: rgb(0, 0, 0);</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QGroupBox { 
-	background: transparent;
+	background: rgba(255, 255, 255, 150);
 	margin-top: 1ex;
 	border: 2px solid gray; 
 	border-radius: 5px; 
@@ -391,6 +376,156 @@ border-radius: 10px;</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
+     </widget>
+     <widget class="QLabel" name="cautionTape_1">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>170</y>
+        <width>480</width>
+        <height>10</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_horizontal.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_2">
+      <property name="geometry">
+       <rect>
+        <x>520</x>
+        <y>0</y>
+        <width>10</width>
+        <height>170</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_3">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>0</y>
+        <width>10</width>
+        <height>170</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_4">
+      <property name="geometry">
+       <rect>
+        <x>690</x>
+        <y>0</y>
+        <width>10</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_5">
+      <property name="geometry">
+       <rect>
+        <x>586</x>
+        <y>0</y>
+        <width>10</width>
+        <height>70</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_vertical.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QLabel" name="cautionTape_6">
+      <property name="geometry">
+       <rect>
+        <x>586</x>
+        <y>70</y>
+        <width>114</width>
+        <height>10</height>
+       </rect>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="ressources.qrc">:/images/caution_tape_horizontal.jpg</pixmap>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_robot">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>320</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 170, 0);
+border-radius: 15px;
+border: 1px solid gray; </string>
+      </property>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_robot_2">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>320</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 170, 0);
+border-radius: 15px;
+border: 1px solid gray; </string>
+      </property>
+      <property name="text">
+       <string>2</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_robot_3">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>320</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 170, 0);
+border-radius: 15px;
+border: 1px solid gray; </string>
+      </property>
+      <property name="text">
+       <string>3</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_robot_4">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>320</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 170, 0);
+border-radius: 15px;
+border: 1px solid gray; </string>
+      </property>
+      <property name="text">
+       <string>4</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
@@ -1354,13 +1489,8 @@ border-radius: 10px;</string>
    </widget>
   </widget>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>Paint</class>
-   <extends>QWidget</extends>
-   <header>paint.h</header>
-  </customwidget>
- </customwidgets>
- <resources/>
+ <resources>
+  <include location="ressources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -15,13 +15,15 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Slot connections for buttons etc.
     connect(ui->pushButton, &QPushButton::clicked, this, &MainWindow::pushButtonClicked);
-    connect(ui->workpiece_pushButton, &QPushButton::clicked, this, &MainWindow::WorkpiecePushButtonClicked);
+    connect(ui->workpiece_pushButton, &QPushButton::clicked, this, &MainWindow::workpiecePushButtonClicked);
     connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::pushButton3Clicked);
     connect(ui->fault_pushButton, &QPushButton::clicked, this, &MainWindow::faultPushButtonClicked);
     connect(ui->comboBox_2, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox2CurrentIndexChanged);
     connect(ui->comboBox_5, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox5CurrentIndexChanged);
     connect(ui->comboBox_6, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox6CurrentIndexChanged);
-    connect(ui->production_order_name_comboBox, &QComboBox::currentIndexChanged, this, &::MainWindow::productionOrderNameComboBoxCurrentIndexChanged);
+    connect(ui->production_order_name_comboBox, &QComboBox::currentIndexChanged, this, &MainWindow::productionOrderNameComboBoxCurrentIndexChanged);
+    connect(ui->production_order_state_lineEdit, &QLineEdit::textChanged, this, &MainWindow::productLineEditTextChanged);
+    connect(ui->station_comboBox, &QComboBox::currentIndexChanged, this, &MainWindow::stationComboBoxCurrentIndexChanged);
 
     database = new Datenbank("Visualization");
     database->Connect();
@@ -31,10 +33,9 @@ MainWindow::MainWindow(QWidget *parent)
     QSqlQuery query(database->db());
     query.prepare("SELECT `production_process_name` FROM `vpj`.`production_process`;");
     query.exec();
-    int i = 0;
     while (query.next())
     {
-        ui->comboBox->insertItem(i++, query.record().value(0).toString());
+        ui->comboBox->addItem(query.record().value(0).toString());
     }
 
 //Werkstückverwaltung
@@ -48,43 +49,41 @@ MainWindow::MainWindow(QWidget *parent)
 //Aufträge
     query.prepare("SELECT order_name FROM vpj.production_order;");
     query.exec();
-    i = 0;
     while (query.next())
     {
-        ui->production_order_name_comboBox->insertItem(i++, query.record().value(0).toString());
+        ui->production_order_name_comboBox->addItem(query.record().value(0).toString());
     }
 
 //Station
     query.prepare("SELECT station_name FROM vpj.station WHERE station_id < 10 ORDER BY station_id ASC;;");
     query.exec();
-    i = 0;
     while (query.next())
     {
-        ui->station_comboBox->insertItem(i++, query.record().value(0).toString());
+        ui->station_comboBox->addItem(query.record().value(0).toString());
     }
 
 
 //Station labels
-    ui->pushButton_2->setGeometry(105, 97, 13, 32); //Station 7,8
     connect(ui->pushButton_2, &QPushButton::clicked, this, [=]() { showStationPanel(7); });
-    ui->pushButton_4->setGeometry(225, 97, 13, 32); //Station 5,6
     connect(ui->pushButton_4, &QPushButton::clicked, this, [=]() { showStationPanel(5); });
-    ui->pushButton_5->setGeometry(345, 97, 13, 32); //Station 3,4
     connect(ui->pushButton_5, &QPushButton::clicked, this, [=]() { showStationPanel(3); });
-    ui->pushButton_6->setGeometry(465, 97, 13, 32); //Station 1,2
     connect(ui->pushButton_6, &QPushButton::clicked, this, [=]() { showStationPanel(1); });
-    ui->pushButton_7->setGeometry(613, 0, 60, 28);  //Charging station 1,2 (9)
     connect(ui->pushButton_7, &QPushButton::clicked, this, [=]() { showStationPanel(9); });
 
     ui->groupBox->setVisible(false);
 
     stationUpdateTimer = new QTimer(this);
-    connect(stationUpdateTimer, &QTimer::timeout, this, &MainWindow::updateStationStatus);
+    connect(stationUpdateTimer, &QTimer::timeout, this, &MainWindow::updateStationStatus);    
 
 //Tab Aktualisierung
     updateTimer = new QTimer(this);
     connect(updateTimer, &QTimer::timeout, this, &MainWindow::updateTabs);
     updateTimer->start(1000);
+
+//Roboter Positionen Aktualisierung
+    robotsPositionsUpdateTimer = new QTimer(this);
+    connect(robotsPositionsUpdateTimer, &QTimer::timeout, this, &MainWindow::updateRobotPosition);
+    robotsPositionsUpdateTimer->start(100);
 }
 
 void MainWindow::updateTabs()
@@ -92,7 +91,7 @@ void MainWindow::updateTabs()
     updateRobotTab(); //Roboter
     int indexorder = ui->production_order_name_comboBox->currentIndex();
     productionOrderNameComboBoxCurrentIndexChanged(indexorder); //Aufträge
-    on_station_comboBox_currentIndexChanged(); //Station
+    stationComboBoxCurrentIndexChanged(ui->station_comboBox->currentIndex()); //Station
     comboBox6CurrentIndexChanged(ui->comboBox_6->currentIndex()); //Wartungsverwaltung
     fault(); //Fehlermeldung
 }
@@ -228,7 +227,7 @@ void MainWindow::comboBox2CurrentIndexChanged(int index)
     }
 }
 
-void MainWindow::WorkpiecePushButtonClicked()
+void MainWindow::workpiecePushButtonClicked()
 {
     QSqlQuery query(database->db());
 
@@ -623,7 +622,7 @@ int MainWindow::workpiece_table(int index) //Werkstückübersicht
     //ui->workpiece_tableView->resizeColumnsToContents();
 }
 
-void MainWindow::on_product_lineEdit_textChanged() //Bilder ändern
+void MainWindow::productLineEditTextChanged() //Bilder ändern
 {
     ui->picture_label->clear();
     if (ui->product_lineEdit->text() == "Tisch")
@@ -665,9 +664,9 @@ void MainWindow::on_product_lineEdit_textChanged() //Bilder ändern
 }
 
 //Station
-void MainWindow::on_station_comboBox_currentIndexChanged()
+void MainWindow::stationComboBoxCurrentIndexChanged(int index)
 {
-    int stationId = ui->station_comboBox->currentIndex()+1;
+    int stationId = index+1;
     int placeId = 2;
     ui->label_14->setText("Platz 2");
     ui->label_15->setText("Platz 3");
@@ -1024,6 +1023,67 @@ void MainWindow::showStationPanel(int stationId)
         ui->groupBox->setVisible(false);
         selectedStation = 0;
         stationUpdateTimer->stop();
+    }
+}
+
+void MainWindow::updateRobotPosition()
+{
+    QSqlQuery query(database->db());
+    query.prepare("SELECT robot_id, robot_position_x, robot_position_y, state_id, battery_level FROM vpj.robot;");
+    if (!query.exec())
+    {
+        qWarning() << "Failed to execute query updateRobotPosition";
+        return;
+    }
+    while (query.next())
+    {
+        int robotId = query.record().value(0).toInt();
+        int x = query.record().value(1).toInt() / 10;
+        int y = 400 - query.record().value(2).toInt() / 10;
+        int state = query.record().value(3).toInt();
+        int batteryLevel = query.record().value(4).toInt();
+
+        switch (robotId) {
+        case 1:
+            setRobotPosition(ui->pushButton_robot, state, x, y, batteryLevel);
+            break;
+        case 2:
+            setRobotPosition(ui->pushButton_robot_2, state, x, y, batteryLevel);
+            break;
+        case 3:
+            setRobotPosition(ui->pushButton_robot_3, state, x, y, batteryLevel);
+            break;
+        case 4:
+            setRobotPosition(ui->pushButton_robot_4, state, x, y, batteryLevel);
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+void MainWindow::setRobotPosition(QPushButton *button, int state, int x, int y, int batteryLevel)
+{
+    if (state == 3)
+    {
+        button->setVisible(false);
+    }
+    else
+    {
+        button->setGeometry(x - 15, y - 15, 30, 30);
+        if (batteryLevel <= 30)
+        {
+            button->setStyleSheet("background-color: red; border-radius: 15px; border: 1px solid gray;");
+        }
+        else if (batteryLevel <=70)
+        {
+            button->setStyleSheet("background-color: orange; border-radius: 15px; border: 1px solid gray;");
+        }
+        else
+        {
+            button->setStyleSheet("background-color: green; border-radius: 15px; border: 1px solid gray;");
+        }
+        button->setVisible(true);
     }
 }
 

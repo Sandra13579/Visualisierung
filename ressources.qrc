@@ -6,5 +6,8 @@
         <file>images/Schrank.png</file>
         <file>images/Stuhl.png</file>
         <file>images/Tisch.png</file>
+        <file>images/caution_tape_horizontal.jpg</file>
+        <file>images/caution_tape_vertical.jpg</file>
+        <file>images/texture.jpg</file>
     </qresource>
 </RCC>

@@ -12,13 +12,11 @@ CONFIG += c++17
 SOURCES += \
     datenbank.cpp \
     main.cpp \
-    mainwindow.cpp \
-    paint.cpp
+    mainwindow.cpp
 
 HEADERS += \
     datenbank.h \
-    mainwindow.h \
-    paint.h
+    mainwindow.h
 
 FORMS += \
     mainwindow.ui
