@@ -842,7 +842,7 @@ void MainWindow::fault()
         else
         {
             //ein werkstück wurde verloren
-            query.prepare("SELECT robot_id, station_place_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id != 25 OR station_place_id != 26);");
+            query.prepare("SELECT robot_id FROM vpj.robot WHERE state_id = 4 AND (station_place_id != 25 OR station_place_id != 26);");
             query.exec();
             if (query.next())
             {
@@ -865,7 +865,7 @@ void MainWindow::faultPushButtonClicked()
     query.exec();
     if (query.next()) //der Roboter hat sich nicht richtig mit der Ladestation verbunden
     {
-        query2.prepare("UPDATE vpj.robot SET state_id = 8 WHERE robot_id = :robot_id;");
+        query2.prepare("UPDATE vpj.robot SET state_id = 5, timestamp = NOW() WHERE robot_id = :robot_id;");
         query2.bindValue(":robot_id", query.record().value(0).toString());
         query2.exec();
     }
