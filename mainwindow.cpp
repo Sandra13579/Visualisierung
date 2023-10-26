@@ -827,6 +827,7 @@ void MainWindow::fault()
         faultText += " verbunden!";
         ui->label_21->setStyleSheet("color: red;");
         ui->label_21->setText(faultText);
+        ui->label_21->setToolTip("Hinweis: Verbinde den Roboter richtig mit der Ladestation, danach darf quittiert werden");
     }
     else
     {
@@ -838,6 +839,7 @@ void MainWindow::fault()
             QString faultText = "Es liegt ein falsches Werkstück unter dem RFID-Reader " + query.record().value(0).toString();
             ui->label_21->setStyleSheet("color: red;");
             ui->label_21->setText(faultText);
+            ui->label_21->setToolTip("Hinweis: Lege das Werkstück zurück an den Startplatz, danach darf quittiert werden");
         }
         else
         {
@@ -849,6 +851,7 @@ void MainWindow::fault()
                 QString faultText = "Der Roboter " + query.record().value(0).toString() + " hat ein Werkstück verloren";
                 ui->label_21->setStyleSheet("color: red;");
                 ui->label_21->setText(faultText);
+                ui->label_21->setToolTip("Hinweis: Entferne das heruntergefallene Werkstück aus dem Produktionsprozess\n(dieses ist fehlerhaft und somit Ausschuss), danach darf quittiert werden");
             }
         }
     }
@@ -875,42 +878,47 @@ void MainWindow::faultPushButtonClicked()
         query.exec();
         if (query.next()) // es wurde eine falsche RFID gelesen
         {
+            int start_station_id = query.record().value(0).toInt();
             query2.prepare("SELECT robot_id FROM vpj.robot r INNER JOIN vpj.station_place sp ON r.station_place_id = sp.station_place_id WHERE sp.station_id = :station_id;");
-            query2.bindValue(":station_id", query.record().value(0).toString());
+            query2.bindValue(":station_id", start_station_id);
             query2.exec();
             query2.next();
+            int robot_id = query2.record().value(0).toInt();
             query3.prepare("UPDATE vpj.robot SET state_id = 0 WHERE robot_id = :robot_id;"); //Roboter frei geben
-            query3.bindValue(":robot_id", query2.record().value(0).toString());
+            query3.bindValue(":robot_id", robot_id);
             query3.exec();
-            qDebug() << "fehler" << "robot_id" << query2.record().value(0).toString() << "station_id" << query.record().value(0).toString();
-
-            //Transportauftrag zurücknehmen
-            query4.prepare("UPDATE vpj.workpiece SET workpiece_state_id = 1, robot_id = NULL, step_id = step_id -1 WHERE robot_id = :robot_id;");
-            query4.bindValue(":robot_id", query2.record().value(0).toString());
-            query4.exec();
+            qDebug() << "fehler" << "robot_id" << query2.record().value(0).toInt() << "station_id" << query.record().value(0).toInt();
 
             //Zielstationsplatz freigeben
-            query3.prepare("SELECT destination_station_place_id FROM vpj.workpiece wp INNER JOIN vpj.robot r ON r.robot_id = wp.robot_id WHERE r.robot_id = :robot_id;");
+            query3.prepare("SELECT destination_station_place_id, start_station_place_id FROM vpj.workpiece wp INNER JOIN vpj.robot r ON r.robot_id = wp.robot_id WHERE r.robot_id = :robot_id;");
             query3.bindValue(":robot_id", query2.record().value(0).toString());
             query3.exec();
             query3.next();
+            int destination_station_place_id = query3.record().value(0).toInt();
+            int start_station_place_id = query3.record().value(1).toInt();
             query4.prepare("UPDATE vpj.station_place SET state_id = 0 WHERE station_place_id = :station_place_id;"); //Roboter frei geben
-            query4.bindValue(":station_place_id", query3.record().value(0).toString());
+            query4.bindValue(":station_place_id", destination_station_place_id);
             query4.exec();
-            qDebug() << "fehler" << "station_place_id" << query3.record().value(0).toString();
+            qDebug() << "fehler" << "station_place_id" << query3.record().value(0).toInt();
+
 
             //Start und Zielstation vorbereiten für Freigabe
-            query4.prepare("SELECT station_id FROM vpj.station_place WHERE station_place_id IN (SELECT start_station_place_id FROM vpj.workpiece wp INNER JOIN vpj.robot r ON r.robot_id = wp.robot_id WHERE r.robot_id = :robot_id) OR station_place_id = :destination_station_place_id;");
-            query4.bindValue(":robot_id", query2.record().value(0).toString());
-            query4.bindValue(":destination_station_place_id", query3.record().value(0).toString());
+            query4.prepare("SELECT station_id FROM vpj.station_place WHERE  station_place_id = :destination_station_place_id;");
+            query4.bindValue(":destination_station_place_id",destination_station_place_id);
             query4.exec();
-            while (query4.next())
-            {
-                qDebug() << "fehler" << "station_id" << query3.record().value(0).toString();
-                query5.prepare("UPDATE vpj.station SET state_id = 1 WHERE station_id = :station_id");
-                query5.bindValue(":station_id", query4.record().value(0).toString());
-                query5.exec();
-            }
+            query4.next();
+            int destination_station_id = query4.record().value(0).toInt();
+            query5.prepare("UPDATE vpj.station SET state_id = 0 WHERE station_id = :station_id");
+            query5.bindValue(":station_id", destination_station_id);
+            query5.exec();
+            query5.prepare("UPDATE vpj.station SET state_id = 1 WHERE station_id = :station_id");
+            query5.bindValue(":station_id", start_station_id);
+            query5.exec();
+
+            //Transportauftrag zurücknehmen
+            query4.prepare("UPDATE vpj.workpiece SET workpiece_state_id = 1, robot_id = NULL, step_id = step_id -1 WHERE station_place_id = :start_station_place_id;");
+            query4.bindValue(":start_station_place_id", start_station_place_id);
+            query4.exec();
         }
         else // ein Werkstück ist verloren gegangen
         {
@@ -930,6 +938,16 @@ void MainWindow::faultPushButtonClicked()
                     int destination_station_place_id = query2.record().value(3).toInt();
                     int station_place_id = query2.record().value(4).toInt();
                     int production_order_id = query2.record().value(5).toInt();
+                    query3.prepare("SELECT station_id FROM vpj.station_place WHERE station_place_id = :station_place_id;");
+                    query3.bindValue(":station_place_id", start_station_place_id);
+                    query3.exec();
+                    query3.next();
+                    int start_station_id = query3.record().value(0).toInt();
+                    query3.prepare("SELECT station_id FROM vpj.station_place WHERE station_place_id = :station_place_id;");
+                    query3.bindValue(":station_place_id", destination_station_place_id);
+                    query3.exec();
+                    query3.next();
+                    int destination_station_id = query3.record().value(0).toInt();
 
                     if (checked_in == 1 && start_station_place_id == station_place_id)
                     {
@@ -938,19 +956,9 @@ void MainWindow::faultPushButtonClicked()
                         query3.bindValue(":destination_station_place_id", destination_station_place_id);
                         query3.exec();
 
-                        query3.prepare("SELECT station_id FROM vpj.station_place WHERE station_place_id = :station_place_id;");
-                        query3.bindValue(":station_place_id", destination_station_place_id);
-                        query3.exec();
-                        query3.next();
-                        int destination_station_id = query3.record().value(0).toInt();
                         query4.prepare("UPDATE vpj.station SET state_id = 0 WHERE station_id = :station_id;");
                         query4.bindValue(":station_id", destination_station_id);
-                        query4.exec();
-                        query3.prepare("SELECT station_id FROM vpj.station_place WHERE station_place_id = :station_place_id;");
-                        query3.bindValue(":station_place_id", start_station_place_id);
-                        query3.exec();
-                        query3.next();
-                        int start_station_id = query3.record().value(0).toInt();
+                        query4.exec();                                              
                         query4.prepare("UPDATE vpj.station SET state_id = 1 WHERE station_id = :station_id;");
                         query4.bindValue(":station_id", start_station_id);
                         query4.exec();
@@ -965,6 +973,9 @@ void MainWindow::faultPushButtonClicked()
                         query3.prepare("UPDATE vpj.station_place SET state_id = 0 WHERE station_place_id = :destination_station_place_id;");
                         query3.bindValue(":destination_station_place_id", destination_station_place_id);
                         query3.exec();
+                        query4.prepare("UPDATE vpj.station SET state_id = 1 WHERE station_id = :station_id;");
+                        query4.bindValue(":station_id", destination_station_id);
+                        query4.exec();
                     }
                     query3.prepare("UPDATE vpj.robot SET state_id = 0 WHERE robot_id = :robot_id;");
                     query3.bindValue(":robot_id", robot_id);
