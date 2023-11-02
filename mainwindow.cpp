@@ -1140,7 +1140,7 @@ void MainWindow::setRobotPosition(QPushButton *button, int state, int x, int y, 
         }
         else
         {
-            button->setStyleSheet("background-color: green; border-radius: 15px; border: 1px solid gray;");
+            button->setStyleSheet("background-color: rgb(52, 235, 52); border-radius: 15px; border: 1px solid gray;");
         }
         button->setVisible(true);
     }
