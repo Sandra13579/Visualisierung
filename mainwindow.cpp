@@ -148,7 +148,7 @@ void MainWindow::updateStationStatus()
     default:
     {
         QSqlQuery query(database->db());
-        query.prepare("SELECT station_id, state_id FROM vpj.station_place WHERE station_id IN (:station_id_1,:station_id_2)");
+        query.prepare("SELECT station_id, state_id FROM vpj.station_place WHERE station_id IN (:station_id_1, :station_id_2)");
         query.bindValue(":station_id_1", selectedStation);
         query.bindValue(":station_id_2", selectedStation + 1);
         query.exec();
@@ -169,6 +169,35 @@ void MainWindow::updateStationStatus()
         ui->label_stat22->setText("2");
         setLabelColorFromState(ui->label_stat23, states[5]);
         ui->label_stat23->setText("3");
+
+
+        //Gesamte Station hat Fehler
+        query.prepare("SELECT state_id FROM vpj.station WHERE station_id = :station_id");
+        query.bindValue(":station_id", selectedStation);
+        query.exec();
+        if (query.next())
+        {
+            //Station auf Fehler -> Alle Plätze auf Rot
+            if (query.record().value(0).toInt() == 4)
+            {
+                setLabelColorFromState(ui->label_stat11, 4);
+                setLabelColorFromState(ui->label_stat12, 4);
+                setLabelColorFromState(ui->label_stat13, 4);
+            }
+        }
+        query.prepare("SELECT state_id FROM vpj.station WHERE station_id = :station_id");
+        query.bindValue(":station_id", selectedStation + 1);
+        query.exec();
+        if (query.next())
+        {
+            //Station auf Fehler -> Alle Plätze auf Rot
+            if (query.record().value(0).toInt() == 4)
+            {
+                setLabelColorFromState(ui->label_stat21, 4);
+                setLabelColorFromState(ui->label_stat22, 4);
+                setLabelColorFromState(ui->label_stat23, 4);
+            }
+        }
         break;
     }
     }
