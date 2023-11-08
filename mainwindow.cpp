@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->workpiece_pushButton, &QPushButton::clicked, this, &MainWindow::workpiecePushButtonClicked);
     connect(ui->pushButton_3, &QPushButton::clicked, this, &MainWindow::pushButton3Clicked);
     connect(ui->fault_pushButton, &QPushButton::clicked, this, &MainWindow::faultPushButtonClicked);
+    connect(ui->cancel_loading1_pushButton, &QPushButton::clicked, this, &MainWindow::cancel_loading1_pushButton);
+    connect(ui->cancel_loading2_pushButton, &QPushButton::clicked, this, &MainWindow::cancel_loading2_pushButton);
+    connect(ui->cancel_loading3_pushButton, &QPushButton::clicked, this, &MainWindow::cancel_loading3_pushButton);
+    connect(ui->cancel_loading4_pushButton, &QPushButton::clicked, this, &MainWindow::cancel_loading4_pushButton);
     connect(ui->comboBox_2, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox2CurrentIndexChanged);
     connect(ui->comboBox_5, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox5CurrentIndexChanged);
     connect(ui->comboBox_6, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox6CurrentIndexChanged);
@@ -27,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     database = new Datenbank("Visualization");
     database->Connect();
+
+    interface = new Interface(this);
+    interface->ConnectToBroker("192.168.0.11");
 
 //Auftragsverwaltung
     //Produktauswahl hinterlegen
@@ -872,7 +879,107 @@ void MainWindow::updateRobotTab()
             break;
         }
     }
+    ui->cancel_loading1_pushButton->setVisible(false);
+    ui->cancel_loading2_pushButton->setVisible(false);
+    ui->cancel_loading3_pushButton->setVisible(false);
+    ui->cancel_loading4_pushButton->setVisible(false);
+    QSqlQuery query(database->db());
+    query.prepare("SELECT robot_id FROM vpj.robot WHERE state_id = 7 AND battery_level >= 50;");
+    query.exec();
+    while (query.next())
+    {
+        int robot_id = query.record().value(0).toInt();
+        switch (robot_id)
+        {
+        case 1:
+            ui->cancel_loading1_pushButton->setVisible(true);
+            break;
+        case 2:
+            ui->cancel_loading2_pushButton->setVisible(true);
+            break;
+        case 3:
+            ui->cancel_loading3_pushButton->setVisible(true);
+            break;
+        case 4:
+            ui->cancel_loading4_pushButton->setVisible(true);
+            break;
+        default:
+            break;
+        }
+    }
     //update();
+}
+
+void MainWindow::cancel_loading1_pushButton()
+{
+    QSqlQuery query(database->db());
+    query.prepare("SELECT station_place_id FROM vpj.robot WHERE robot_id = 1 AND state_id = 7");
+    query.exec();
+    if (query.next())
+    {
+        if (query.record().value(0).toInt() == 25)
+        {
+            interface->SendCharging(false, 1);
+        }
+        else if (query.record().value(0).toInt() == 26)
+        {
+            interface->SendCharging(false, 2);
+        }
+    }
+}
+
+void MainWindow::cancel_loading2_pushButton()
+{
+    QSqlQuery query(database->db());
+    query.prepare("SELECT station_place_id FROM vpj.robot WHERE robot_id = 2 AND state_id = 7");
+    query.exec();
+    if (query.next())
+    {
+        if (query.record().value(0).toInt() == 25)
+        {
+            interface->SendCharging(false, 1);
+        }
+        else if (query.record().value(0).toInt() == 26)
+        {
+            interface->SendCharging(false, 2);
+        }
+    }
+}
+
+void MainWindow::cancel_loading3_pushButton()
+{
+    QSqlQuery query(database->db());
+    query.prepare("SELECT station_place_id FROM vpj.robot WHERE robot_id = 3 AND state_id = 7");
+    query.exec();
+    if (query.next())
+    {
+        if (query.record().value(0).toInt() == 25)
+        {
+            interface->SendCharging(false, 1);
+        }
+        else if (query.record().value(0).toInt() == 26)
+        {
+            interface->SendCharging(false, 2);
+        }
+    }
+}
+
+void MainWindow::cancel_loading4_pushButton()
+{
+    QSqlQuery query(database->db());
+    query.prepare("SELECT station_place_id FROM vpj.robot WHERE robot_id = 4 AND state_id = 7");
+    query.exec();
+    if (query.next())
+    {
+        if (query.record().value(0).toInt() == 25)
+        {
+            interface->SendCharging(false, 1);
+        }
+        else if (query.record().value(0).toInt() == 26)
+        {
+            interface->SendCharging(false, 2);
+        }
+    }
 }
 
 //Fehler

@@ -1,4 +1,5 @@
 QT       += core gui
+QT       += mqtt
 QT       += sql      #damit sql benutzt werden kann
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -11,11 +12,13 @@ CONFIG += c++17
 
 SOURCES += \
     datenbank.cpp \
+    interface.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
     datenbank.h \
+    interface.h \
     mainwindow.h
 
 FORMS += \

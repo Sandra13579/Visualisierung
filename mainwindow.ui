@@ -61,7 +61,7 @@
       <property name="geometry">
        <rect>
         <x>105</x>
-        <y>97</y>
+        <y>102</y>
         <width>13</width>
         <height>32</height>
        </rect>
@@ -80,8 +80,8 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QPushButton" name="pushButton_4">
       <property name="geometry">
        <rect>
-        <x>225</x>
-        <y>97</y>
+        <x>220</x>
+        <y>102</y>
         <width>13</width>
         <height>32</height>
        </rect>
@@ -103,8 +103,8 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QPushButton" name="pushButton_5">
       <property name="geometry">
        <rect>
-        <x>345</x>
-        <y>97</y>
+        <x>338</x>
+        <y>102</y>
         <width>13</width>
         <height>32</height>
        </rect>
@@ -126,8 +126,8 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QPushButton" name="pushButton_6">
       <property name="geometry">
        <rect>
-        <x>465</x>
-        <y>97</y>
+        <x>460</x>
+        <y>102</y>
         <width>13</width>
         <height>32</height>
        </rect>
@@ -152,7 +152,7 @@ border-color: rgb(0, 0, 0);</string>
         <x>613</x>
         <y>0</y>
         <width>60</width>
-        <height>28</height>
+        <height>35</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -163,9 +163,9 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QLabel" name="cautionTape_1">
       <property name="geometry">
        <rect>
-        <x>50</x>
-        <y>170</y>
-        <width>480</width>
+        <x>80</x>
+        <y>150</y>
+        <width>420</width>
         <height>10</height>
        </rect>
       </property>
@@ -176,10 +176,10 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QLabel" name="cautionTape_2">
       <property name="geometry">
        <rect>
-        <x>520</x>
+        <x>490</x>
         <y>0</y>
         <width>10</width>
-        <height>170</height>
+        <height>150</height>
        </rect>
       </property>
       <property name="pixmap">
@@ -189,10 +189,10 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QLabel" name="cautionTape_3">
       <property name="geometry">
        <rect>
-        <x>50</x>
+        <x>80</x>
         <y>0</y>
         <width>10</width>
-        <height>170</height>
+        <height>150</height>
        </rect>
       </property>
       <property name="pixmap">
@@ -202,10 +202,10 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QLabel" name="cautionTape_4">
       <property name="geometry">
        <rect>
-        <x>690</x>
+        <x>702</x>
         <y>0</y>
         <width>10</width>
-        <height>70</height>
+        <height>73</height>
        </rect>
       </property>
       <property name="pixmap">
@@ -215,10 +215,10 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QLabel" name="cautionTape_5">
       <property name="geometry">
        <rect>
-        <x>586</x>
+        <x>574</x>
         <y>0</y>
         <width>10</width>
-        <height>70</height>
+        <height>73</height>
        </rect>
       </property>
       <property name="pixmap">
@@ -228,9 +228,9 @@ border-color: rgb(0, 0, 0);</string>
      <widget class="QLabel" name="cautionTape_6">
       <property name="geometry">
        <rect>
-        <x>586</x>
-        <y>70</y>
-        <width>114</width>
+        <x>574</x>
+        <y>73</y>
+        <width>138</width>
         <height>10</height>
        </rect>
       </property>
@@ -1313,6 +1313,58 @@ border-radius: 10px;</string>
       </property>
       <property name="text">
        <string>Werkstücke</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cancel_loading1_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>310</y>
+        <width>111</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Laden abbrechen</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cancel_loading2_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>310</y>
+        <width>111</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Laden abbrechen</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cancel_loading3_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>310</y>
+        <width>111</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Laden abbrechen</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cancel_loading4_pushButton">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>310</y>
+        <width>111</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Laden abbrechen</string>
       </property>
      </widget>
     </widget>

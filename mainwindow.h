@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <datenbank.h>
+#include "interface.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -35,6 +36,10 @@ private slots:
     void comboBox5CurrentIndexChanged(int index);
     void comboBox6CurrentIndexChanged(int index);
     void productionOrderNameComboBoxCurrentIndexChanged(int index);
+    void cancel_loading1_pushButton();
+    void cancel_loading2_pushButton();
+    void cancel_loading3_pushButton();
+    void cancel_loading4_pushButton();
     int workpiece_table(int index);
     
     void stationComboBoxCurrentIndexChanged(int index);
@@ -54,6 +59,7 @@ private:
     QTimer* stationUpdateTimer;
     QTimer* robotUpdateTimer;
     QTimer* robotsPositionsUpdateTimer;
+    Interface* interface;
     int selectedStation = 0;
     int selectedRobot = 0;
     void updateRobotTab();
