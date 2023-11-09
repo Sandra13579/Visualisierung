@@ -58,11 +58,12 @@ void Interface::PublishMqttMessage(QString topic, QString payload, quint8 qos, b
     m_mqttClient->publish(QMqttTopicName(topic), message, qos, retain);
 }
 
-void Interface::SendCharging (bool chargingState, int stationId)
+void Interface::SendCharging (bool chargingState, int stationId, int robotId)
 {
     QJsonObject object
         {
-            {"charge", chargingState}
+            {"charge", chargingState},
+            {"robot", robotId}
         };
 
     QString payload = QJsonDocument(object).toJson(QJsonDocument::Compact);

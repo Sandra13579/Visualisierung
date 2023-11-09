@@ -16,7 +16,7 @@ public:
     void DisconnectFromBroker();
 
 public slots:
-    void SendCharging(bool chargingState, int stationId);
+    void SendCharging(bool chargingState, int stationId, int robotId);
 
 private:
     const QString topicCharging = "Charging/<No>/Load"; //begin/abort charging -> GW4

@@ -919,11 +919,11 @@ void MainWindow::cancel_loading1_pushButton()
     {
         if (query.record().value(0).toInt() == 25)
         {
-            interface->SendCharging(false, 1);
+            interface->SendCharging(false, 1, 1);
         }
         else if (query.record().value(0).toInt() == 26)
         {
-            interface->SendCharging(false, 2);
+            interface->SendCharging(false, 2, 1);
         }
     }
 }
@@ -937,11 +937,11 @@ void MainWindow::cancel_loading2_pushButton()
     {
         if (query.record().value(0).toInt() == 25)
         {
-            interface->SendCharging(false, 1);
+            interface->SendCharging(false, 1, 2);
         }
         else if (query.record().value(0).toInt() == 26)
         {
-            interface->SendCharging(false, 2);
+            interface->SendCharging(false, 2, 2);
         }
     }
 }
@@ -955,11 +955,11 @@ void MainWindow::cancel_loading3_pushButton()
     {
         if (query.record().value(0).toInt() == 25)
         {
-            interface->SendCharging(false, 1);
+            interface->SendCharging(false, 1, 3);
         }
         else if (query.record().value(0).toInt() == 26)
         {
-            interface->SendCharging(false, 2);
+            interface->SendCharging(false, 2, 3);
         }
     }
 }
@@ -973,11 +973,11 @@ void MainWindow::cancel_loading4_pushButton()
     {
         if (query.record().value(0).toInt() == 25)
         {
-            interface->SendCharging(false, 1);
+            interface->SendCharging(false, 1, 4);
         }
         else if (query.record().value(0).toInt() == 26)
         {
-            interface->SendCharging(false, 2);
+            interface->SendCharging(false, 2, 4);
         }
     }
 }
