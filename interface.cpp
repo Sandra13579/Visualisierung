@@ -22,13 +22,17 @@ void Interface::DisconnectFromBroker()
     m_mqttClient->disconnectFromHost();
 }
 
+bool Interface::IsConnectedToBroker()
+{
+    return m_mqttClient->state() == QMqttClient::Connected;
+}
+
 void Interface::UpdateConnectionState(QMqttClient::ClientState state)
 {
     switch (state)
     {
     case QMqttClient::Connected:
         qDebug() << "MQTT Client with ID" << m_mqttClient->clientId() << "connected to broker:" << m_mqttClient->hostname() << ":" << m_mqttClient->port();
-        //QTimer::singleShot(1, this, [this]() { emit connected(); });   //Zum Einschalten der Agenten
         break;
     case QMqttClient::Disconnected:
         qDebug() << "MQTT Client with ID" << m_mqttClient->clientId() << "disconnected!";

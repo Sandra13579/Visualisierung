@@ -14,6 +14,7 @@ public:
     explicit Interface(QObject *parent = nullptr);
     void ConnectToBroker(QString ip, int port = 1883);
     void DisconnectFromBroker();
+    bool IsConnectedToBroker();
 
 public slots:
     void SendCharging(bool chargingState, int stationId, int robotId);
@@ -27,7 +28,7 @@ private:
     void ReconnectToBroker();
 
 private slots:
-     void UpdateConnectionState(QMqttClient::ClientState state);
+    void UpdateConnectionState(QMqttClient::ClientState state);
 
 
 signals:
