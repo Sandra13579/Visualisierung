@@ -63,7 +63,7 @@ private:
     int selectedStation = 0;
     int selectedRobot = 0;
     void updateRobotTab();
-    void setLabelColorFromState(QLabel *label, int state);
+    void setLabelColorFromState(QLabel *label, int state, int rfid = -1);
     void setRobotPosition(QPushButton *button, int state, int x, int y, int batteryLevel);
 };
 #endif // MAINWINDOW_H

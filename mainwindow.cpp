@@ -154,6 +154,7 @@ void MainWindow::updateStationStatus()
     }
     default:
     {
+        //Stationsstatus aus DB holen
         QSqlQuery query(database->db());
         query.prepare("SELECT station_id, state_id FROM vpj.station_place WHERE station_id IN (:station_id_1, :station_id_2)");
         query.bindValue(":station_id_1", selectedStation);
@@ -164,19 +165,48 @@ void MainWindow::updateStationStatus()
         {
             states.append(query.record().value(1).toInt());
         }
-        setLabelColorFromState(ui->label_stat11, states[0]);
-        ui->label_stat11->setText("1");
-        setLabelColorFromState(ui->label_stat12, states[1]);
-        ui->label_stat12->setText("2");
-        setLabelColorFromState(ui->label_stat13, states[2]);
-        ui->label_stat13->setText("3");
-        setLabelColorFromState(ui->label_stat21, states[3]);
-        ui->label_stat21->setText("1");
-        setLabelColorFromState(ui->label_stat22, states[4]);
-        ui->label_stat22->setText("2");
-        setLabelColorFromState(ui->label_stat23, states[5]);
-        ui->label_stat23->setText("3");
 
+        if (states.count() == 0)
+            break;
+
+        //RFID der Werkstücke der Stationen aus DB holen
+        QList<int> rfids;
+        for (int i = 0; i < 6; i++)
+        {
+            rfids.append(-1);
+        }
+        query.prepare("SELECT station_place.place_id, workpiece.rfid FROM vpj.workpiece INNER JOIN vpj.station_place ON vpj.workpiece.station_place_id = vpj.station_place.station_place_id WHERE workpiece.station_place_id IN (SELECT station_place_id FROM vpj.station_place WHERE station_id = :station_id)");
+        query.bindValue(":station_id", selectedStation);
+        query.exec();
+        while (query.next())
+        {
+            int placeId = query.record().value(0).toInt();
+            int rfid = query.record().value(1).toInt();
+            rfids[placeId - 1] = rfid;
+        }
+        query.prepare("SELECT station_place.place_id, workpiece.rfid FROM vpj.workpiece INNER JOIN vpj.station_place ON vpj.workpiece.station_place_id = vpj.station_place.station_place_id WHERE workpiece.station_place_id IN (SELECT station_place_id FROM vpj.station_place WHERE station_id = :station_id)");
+        query.bindValue(":station_id", selectedStation + 1);
+        query.exec();
+        while (query.next())
+        {
+            int placeId = query.record().value(0).toInt();
+            int rfid = query.record().value(1).toInt();
+            rfids[3 + placeId - 1] = rfid;
+        }
+
+        //Stationsstatus und RFIDs den Labeln zuweisen (Farbe, Tooltip)
+        setLabelColorFromState(ui->label_stat11, states[0], rfids[0]);
+        ui->label_stat11->setText("1");
+        setLabelColorFromState(ui->label_stat12, states[1], rfids[1]);
+        ui->label_stat12->setText("2");
+        setLabelColorFromState(ui->label_stat13, states[2], rfids[2]);
+        ui->label_stat13->setText("3");
+        setLabelColorFromState(ui->label_stat21, states[3], rfids[3]);
+        ui->label_stat21->setText("1");
+        setLabelColorFromState(ui->label_stat22, states[4], rfids[4]);
+        ui->label_stat22->setText("2");
+        setLabelColorFromState(ui->label_stat23, states[5], rfids[5]);
+        ui->label_stat23->setText("3");
 
         //Gesamte Station hat Fehler
         query.prepare("SELECT state_id FROM vpj.station WHERE station_id = :station_id");
@@ -1282,7 +1312,7 @@ void MainWindow::setRobotPosition(QPushButton *button, int state, int x, int y, 
     }
 }
 
-void MainWindow::setLabelColorFromState(QLabel *label, int state)
+void MainWindow::setLabelColorFromState(QLabel *label, int state, int rfid)
 {
     switch (state)
     {
@@ -1292,11 +1322,11 @@ void MainWindow::setLabelColorFromState(QLabel *label, int state)
         break;
     case 1: //State: assigned
         label->setStyleSheet("background-color: orange; border-radius: 10px;");
-        label->setToolTip("Belegt");
+        rfid != -1 ? label->setToolTip("Belegt, RFID:" + QString::number(rfid)) : label->setToolTip("Belegt");
         break;
     case 2: //State: reserved
         label->setStyleSheet("background-color: yellow; border-radius: 10px;");
-        label->setToolTip("Reserviert");
+        rfid != -1 ? label->setToolTip("Reserviert, RFID:" + QString::number(rfid)) : label->setToolTip("Reserviert");
         break;
     case 3: //State: inactive
         label->setStyleSheet("background-color: grey; border-radius: 10px; color: white;");
