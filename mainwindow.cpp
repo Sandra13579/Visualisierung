@@ -914,7 +914,7 @@ void MainWindow::updateRobotTab()
     ui->cancel_loading3_pushButton->setVisible(false);
     ui->cancel_loading4_pushButton->setVisible(false);
     QSqlQuery query(database->db());
-    query.prepare("SELECT robot_id FROM vpj.robot WHERE state_id = 7 AND battery_level >= 50;");
+    query.prepare("SELECT robot_id FROM vpj.robot WHERE state_id = 7");
     query.exec();
     while (query.next())
     {
