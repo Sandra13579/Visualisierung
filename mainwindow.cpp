@@ -849,12 +849,12 @@ void MainWindow::updateRobotTab()
         query2.bindValue(":robot_id", robotId);
         query2.exec();
         query2.next();
-        QString workpieceCount = query2.record().value(0).toString();
+        int workpieceCount = query2.record().value(0).toInt() / 2;
 
         switch (robotId)
         {
         case 1:
-            ui->robot1_workpieces_lineEdit->setText(workpieceCount);
+            ui->robot1_workpieces_lineEdit->setText(QString::number(workpieceCount));
             ui->robot1_state_lineEdit->setText(state);
             if (state != "inaktiv")
             {
@@ -867,7 +867,7 @@ void MainWindow::updateRobotTab()
             }
             break;
         case 2:
-            ui->robot2_workpieces_lineEdit->setText(workpieceCount);
+            ui->robot2_workpieces_lineEdit->setText(QString::number(workpieceCount));
             ui->robot2_state_lineEdit->setText(state);
             if (state != "inaktiv")
             {
@@ -880,7 +880,7 @@ void MainWindow::updateRobotTab()
             }
             break;
         case 3:
-            ui->robot3_workpieces_lineEdit->setText(workpieceCount);
+            ui->robot3_workpieces_lineEdit->setText(QString::number(workpieceCount));
             ui->robot3_state_lineEdit->setText(state);
             if (state != "inaktiv")
             {
@@ -893,7 +893,7 @@ void MainWindow::updateRobotTab()
             }
             break;
         case 4:
-            ui->robot4_workpieces_lineEdit->setText(workpieceCount);
+            ui->robot4_workpieces_lineEdit->setText(QString::number(workpieceCount));
             ui->robot4_state_lineEdit->setText(state);
             if (state != "inaktiv")
             {
