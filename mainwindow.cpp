@@ -26,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->comboBox_5, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox5CurrentIndexChanged);
     connect(ui->comboBox_6, &QComboBox::currentIndexChanged, this, &MainWindow::comboBox6CurrentIndexChanged);
     connect(ui->production_order_name_comboBox, &QComboBox::currentIndexChanged, this, &MainWindow::productionOrderNameComboBoxCurrentIndexChanged);
-    connect(ui->production_order_state_lineEdit, &QLineEdit::textChanged, this, &MainWindow::productLineEditTextChanged);
+    connect(ui->product_lineEdit, &QLineEdit::textChanged, this, &MainWindow::productLineEditTextChanged);
     connect(ui->station_comboBox, &QComboBox::currentIndexChanged, this, &MainWindow::stationComboBoxCurrentIndexChanged);
 
     database = new Datenbank("Visualization");
